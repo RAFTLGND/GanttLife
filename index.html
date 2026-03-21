@@ -87,6 +87,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text2);font-size:13px;gap:8px}
 .spinner{width:16px;height:16px;border:2px solid var(--bd2);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.clock-row{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.clock{font-size:32px;font-weight:500;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.clock-secs{font-size:18px;font-weight:400;color:var(--text2);font-variant-numeric:tabular-nums}
+.day-prog-wrap{margin-bottom:18px}
+.day-prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:5px}
+.day-prog-bar{height:5px;background:var(--bg2);border-radius:3px;overflow:hidden}
+.day-prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:3px;transition:width 1s linear}
+.countdown-box{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:12px 14px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.countdown-icon{font-size:18px;flex-shrink:0}
+.countdown-info{flex:1;min-width:0}
+.countdown-label{font-size:11px;color:var(--text2);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.countdown-time{font-size:18px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--blue)}
+.countdown-time.urgent{color:var(--amber)}
+.countdown-time.overdue{color:#DC2626}
 </style>
 </head>
 <body>
@@ -108,9 +122,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="content">
     <!-- TODAY -->
     <div class="panel active" id="panel-today">
-      <div style="margin-bottom:16px">
-        <div style="font-size:20px;font-weight:500" id="today-date"></div>
-        <div style="font-size:13px;color:var(--text2);margin-top:2px">Your daily command center · synced across all devices</div>
+      <div style="margin-bottom:14px">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:4px" id="today-date"></div>
+        <div class="clock-row">
+          <div class="clock" id="clock-hm">--:--</div>
+          <div class="clock-secs" id="clock-s">--</div>
+        </div>
+      </div>
+      <div class="day-prog-wrap">
+        <div class="day-prog-label">
+          <span>Day progress</span>
+          <span id="day-pct-label">0%</span>
+        </div>
+        <div class="day-prog-bar"><div class="day-prog-fill" id="day-prog-fill" style="width:0%"></div></div>
+      </div>
+      <div class="countdown-box" id="countdown-box" style="display:none">
+        <div class="countdown-icon">⏱</div>
+        <div class="countdown-info">
+          <div class="countdown-label" id="countdown-label">Next deadline</div>
+          <div class="countdown-time" id="countdown-time">--</div>
+        </div>
       </div>
       <div class="metrics">
         <div class="metric"><div class="metric-label">Tasks today</div><div class="metric-val c-blue" id="m-total">—</div></div>
@@ -286,7 +317,8 @@ function getTodayTasks(){return tasks.filter(t=>t.start_date<=todayStr&&t.end_da
 function renderToday(){
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('today-date').textContent=days[todayDate.getDay()]+', '+months[todayDate.getMonth()]+' '+todayDate.getDate()+', '+todayDate.getFullYear();
+  const now=new Date();
+  document.getElementById('today-date').textContent=days[now.getDay()]+', '+months[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear();
   const today=getTodayTasks();const done=today.filter(t=>t.done).length;
   document.getElementById('m-total').textContent=today.length;
   document.getElementById('m-done').textContent=done;
@@ -408,6 +440,7 @@ function focusMode(){
 
 document.getElementById('f-start').value=todayStr;
 document.getElementById('f-end').value=todayStr;
+startClock();
 loadTasks().then(()=>setTimeout(()=>showNotif('LifeGantt ready ✓',getTodayTasks().length+' tasks today, synced across all devices.'),1200));
 
 // ── EXCEL EXPORT ─────────────────────────────────────────────────────────────
@@ -590,6 +623,82 @@ function getISOWeek(d){
   date.setDate(date.getDate()+3-(date.getDay()+6)%7);
   const week1=new Date(date.getFullYear(),0,4);
   return 1+Math.round(((date.getTime()-week1.getTime())/86400000-3+(week1.getDay()+6)%7)/7);
+}
+
+// ── LIVE CLOCK + DAY PROGRESS + COUNTDOWN ────────────────────────────────────
+function startClock(){
+  let lastDateStr='';
+  function tick(){
+    const now=new Date();
+    const h=String(now.getHours()).padStart(2,'0');
+    const m=String(now.getMinutes()).padStart(2,'0');
+    const s=String(now.getSeconds()).padStart(2,'0');
+
+    // Clock
+    document.getElementById('clock-hm').textContent=h+':'+m;
+    document.getElementById('clock-s').textContent=s;
+
+    // Day progress (seconds since midnight / 86400)
+    const secsSinceMidnight=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
+    const dayPct=Math.round(secsSinceMidnight/864); // /86400*100
+    document.getElementById('day-prog-fill').style.width=dayPct+'%';
+    document.getElementById('day-pct-label').textContent=dayPct+'%';
+
+    // Auto-refresh at midnight
+    const dateStr=now.toISOString().split('T')[0];
+    if(lastDateStr && dateStr!==lastDateStr){
+      // Day changed — reload everything
+      window.todayDate=new Date();
+      window.todayStr=dateStr;
+      loadTasks();
+    }
+    lastDateStr=dateStr;
+
+    // Countdown to next upcoming task end date
+    updateCountdown(now);
+  }
+  tick();
+  setInterval(tick,1000);
+}
+
+function updateCountdown(now){
+  const box=document.getElementById('countdown-box');
+  const label=document.getElementById('countdown-label');
+  const timeEl=document.getElementById('countdown-time');
+  if(!tasks||!tasks.length){box.style.display='none';return;}
+
+  const nowStr=now.toISOString().split('T')[0];
+
+  // Find the soonest end_date among active (not done) tasks
+  const upcoming=tasks
+    .filter(t=>!t.done && t.end_date>=nowStr)
+    .sort((a,b)=>a.end_date.localeCompare(b.end_date));
+
+  if(!upcoming.length){box.style.display='none';return;}
+
+  const next=upcoming[0];
+  // Deadline = end of that day (23:59:59)
+  const deadline=new Date(next.end_date+'T23:59:59');
+  const diffMs=deadline-now;
+
+  if(diffMs<0){box.style.display='none';return;}
+
+  box.style.display='flex';
+  label.textContent='Deadline: '+next.name;
+
+  const totalSecs=Math.floor(diffMs/1000);
+  const dd=Math.floor(totalSecs/86400);
+  const hh=Math.floor((totalSecs%86400)/3600);
+  const mm=Math.floor((totalSecs%3600)/60);
+  const ss=totalSecs%60;
+
+  let display='';
+  if(dd>0) display=dd+'d '+String(hh).padStart(2,'0')+'h '+String(mm).padStart(2,'0')+'m';
+  else if(hh>0) display=String(hh).padStart(2,'0')+'h '+String(mm).padStart(2,'0')+'m '+String(ss).padStart(2,'0')+'s';
+  else display=String(mm).padStart(2,'0')+'m '+String(ss).padStart(2,'0')+'s';
+
+  timeEl.textContent=display;
+  timeEl.className='countdown-time'+(dd===0&&hh<2?' urgent':'');
 }
 </script>
 </body>
