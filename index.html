@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LifeGantt">
+<title>LifeGantt</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff; --bg2: #f5f5f4; --bg3: #f0efed;
+  --text: #1c1c1a; --text2: #6b6b67; --text3: #9b9b97;
+  --border: rgba(0,0,0,0.10); --border2: rgba(0,0,0,0.18);
+  --radius: 8px; --radius-lg: 12px;
+  --blue: #3B82F6; --green: #10B981; --amber: #F59E0B;
+  --purple: #8B5CF6; --pink: #EC4899; --gray: #6B7280;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2c;
+    --text: #e8e8e4; --text2: #9b9b97; --text3: #6b6b67;
+    --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.18);
+  }
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
+.app { display: flex; flex-direction: column; min-height: 100vh; max-width: 900px; margin: 0 auto; }
+
+/* Topbar */
+.topbar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--bg); border-bottom: 0.5px solid var(--border); flex-wrap: wrap; position: sticky; top: 0; z-index: 10; }
+.logo { font-size: 16px; font-weight: 600; letter-spacing: -0.4px; }
+.logo span { color: var(--blue); }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.sync-dot.offline { background: var(--amber); }
+.sync-dot.syncing { background: var(--blue); animation: blink .8s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.tabs { display: flex; gap: 2px; background: var(--bg2); border-radius: var(--radius); padding: 3px; }
+.tab { padding: 5px 13px; border-radius: 6px; font-size: 13px; cursor: pointer; border: none; background: transparent; color: var(--text2); transition: all .15s; font-family: inherit; }
+.tab.active { background: var(--bg); color: var(--text); border: 0.5px solid var(--border); font-weight: 500; }
+.spacer { flex: 1; }
+.btn { padding: 6px 13px; border-radius: var(--radius); font-size: 13px; cursor: pointer; border: 0.5px solid var(--border2); background: transparent; color: var(--text); font-family: inherit; transition: background .15s; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { background: var(--bg2); }
+.btn.primary { background: var(--text); color: var(--bg); border-color: transparent; }
+.btn.primary:hover { opacity: .88; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Panels */
+.content { flex: 1; }
+.panel { padding: 18px; display: none; }
+.panel.active { display: block; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
+
+/* Metrics */
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+@media(max-width:500px){ .metrics { grid-template-columns: repeat(2,1fr); } }
+.metric { background: var(--bg2); border-radius: var(--radius); padding: 10px 12px; }
+.metric-label { font-size: 11px; color: var(--text2); margin-bottom: 3px; }
+.metric-val { font-size: 22px; font-weight: 500; }
+.c-blue{color:var(--blue)} .c-green{color:var(--green)} .c-amber{color:var(--amber)}
+
+/* Progress */
+.prog-bar { height: 4px; background: var(--bg2); border-radius: 2px; margin-bottom: 20px; overflow: hidden; }
+.prog-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .4s; }
+
+/* Task list */
+.task-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 20px; }
+.task-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: border-color .15s; }
+.task-item:hover { border-color: var(--border2); }
+.task-item.done { opacity: .4; }
+.task-item.done .task-name { text-decoration: line-through; }
+.check { width: 18px; height: 18px; border: 1.5px solid var(--border2); border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.task-item.done .check { background: var(--green); border-color: var(--green); }
+.check svg { display: none; }
+.task-item.done .check svg { display: block; }
+.task-info { flex: 1; min-width: 0; }
+.task-name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.task-sub { font-size: 11px; color: var(--text2); margin-top: 1px; display: flex; align-items: center; gap: 4px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.prio-badge { font-size: 11px; padding: 2px 7px; border-radius: 99px; flex-shrink: 0; }
+.ph { background: #FEE2E2; color: #DC2626; }
+.pm { background: #FEF3C7; color: #D97706; }
+.pl { background: var(--bg2); color: var(--text2); }
+.empty { font-size: 13px; color: var(--text2); padding: 12px 0; }
+
+/* AI box */
+.ai-box { border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px; background: var(--bg); }
+.ai-header { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; margin-bottom: 10px; }
+.ai-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); animation: blink 2s infinite; }
+.ai-output { font-size: 13px; color: var(--text2); line-height: 1.65; min-height: 36px; }
+.ai-row { display: flex; gap: 8px; margin-top: 10px; }
+.ai-input { flex: 1; padding: 7px 10px; border: 0.5px solid var(--border2); border-radius: var(--radius); font-size: 13px; background: var(--bg2); color: var(--text); outline: none; font-family: inherit; }
+.ai-input:focus { border-color: var(--blue); }
+
+/* Gantt */
+.gantt-toolbar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+.sel { padding: 6px 10px; border: 0.5px solid var(--border2); border-radius: var(--radius); font-size: 13px; background: var(--bg2); color: var(--text); font-family: inherit; outline: none; }
+.gantt-wrap { overflow-x: auto; border: 0.5px solid var(--border); border-radius: var(--radius-lg); background: var(--bg); }
+.gantt-tbl { border-collapse: collapse; font-size: 11px; }
+.gantt-tbl th { padding: 7px 3px; border-bottom: 0.5px solid var(--border); font-weight: 500; color: var(--text2); white-space: nowrap; text-align: center; background: var(--bg); position: sticky; top: 0; z-index: 2; }
+.gantt-tbl th:first-child { text-align: left; padding-left: 10px; min-width: 155px; position: sticky; left: 0; z-index: 3; }
+.gantt-tbl td { padding: 0; border-bottom: 0.5px solid var(--border); }
+.gantt-tbl td:first-child { padding: 0 10px; font-size: 12px; white-space: nowrap; position: sticky; left: 0; background: var(--bg); z-index: 1; border-right: 0.5px solid var(--border); max-width: 155px; overflow: hidden; text-overflow: ellipsis; line-height: 36px; color: var(--text); }
+.gantt-tbl tr:last-child td { border-bottom: none; }
+.gcell { width: 22px; min-width: 22px; height: 36px; }
+.gbar { height: 18px; margin: 9px 0; border-radius: 3px; }
+.gtoday { background: rgba(59,130,246,.12); }
+.gmile { text-align: center; line-height: 36px; font-size: 12px; }
+
+/* Add form */
+.form-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px; max-width: 520px; }
+.flabel { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 5px; display: block; }
+.frow { margin-bottom: 13px; }
+.finput, .fsel, .ftarea { width: 100%; padding: 8px 10px; border: 0.5px solid var(--border2); border-radius: var(--radius); font-size: 13px; background: var(--bg2); color: var(--text); outline: none; font-family: inherit; }
+.finput:focus, .fsel:focus, .ftarea:focus { border-color: var(--blue); }
+.frow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 13px; }
+.sug-area { max-width: 520px; margin-top: 14px; }
+.sug-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); margin-bottom: 6px; cursor: pointer; font-size: 13px; transition: border-color .15s; }
+.sug-item:hover { border-color: var(--border2); }
+
+/* Progress panel */
+.streak-row { display: flex; align-items: center; gap: 14px; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px; margin-bottom: 18px; }
+.streak-num { font-size: 36px; font-weight: 500; color: var(--amber); line-height: 1; }
+.pcat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 10px; margin-bottom: 20px; }
+.pcat { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px; }
+.pcat-title { font-size: 13px; font-weight: 500; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.pbar-bg { height: 5px; background: var(--bg2); border-radius: 3px; overflow: hidden; margin-bottom: 5px; }
+.pbar-fill { height: 100%; border-radius: 3px; transition: width .4s; }
+.pstat { font-size: 11px; color: var(--text2); }
+
+/* Notification */
+.notif { position: fixed; top: 12px; right: 12px; background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--radius-lg); padding: 12px 16px; max-width: 260px; font-size: 13px; z-index: 999; transform: translateX(300px); transition: transform .3s; box-shadow: 0 4px 20px rgba(0,0,0,.12); }
+.notif.show { transform: translateX(0); }
+.notif-title { font-weight: 500; margin-bottom: 2px; }
+.notif-body { color: var(--text2); font-size: 12px; }
+
+/* Focus overlay */
+.focus-ov { display: none; position: fixed; inset: 0; background: var(--bg3); z-index: 100; padding: 32px 20px; overflow-y: auto; }
+.focus-ov.open { display: block; }
+.focus-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.focus-title { font-size: 18px; font-weight: 500; }
+
+/* Loading */
+.loading { display: flex; align-items: center; justify-content: center; padding: 40px; color: var(--text2); font-size: 13px; gap: 8px; }
+.spinner { width: 16px; height: 16px; border: 2px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin .6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="logo">Life<span>Gantt</span></div>
+    <div class="sync-dot syncing" id="sync-dot" title="Syncing..."></div>
+    <div class="tabs">
+      <button class="tab active" onclick="sw('today')">Today</button>
+      <button class="tab" onclick="sw('gantt')">Gantt</button>
+      <button class="tab" onclick="sw('add')">Add task</button>
+      <button class="tab" onclick="sw('progress')">Progress</button>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn" onclick="focusMode()">Focus</button>
+    <button class="btn primary" onclick="showNotif('Morning briefing', getTodayTasks().length+' tasks today. Stay focused!')">Notify</button>
+  </div>
+
+  <div class="content">
+    <!-- TODAY -->
+    <div class="panel active" id="panel-today">
+      <div style="margin-bottom:16px">
+        <div style="font-size:20px;font-weight:500" id="today-date"></div>
+        <div style="font-size:13px;color:var(--text2);margin-top:2px">Your daily command center · synced across all devices</div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-label">Tasks today</div><div class="metric-val c-blue" id="m-total">—</div></div>
+        <div class="metric"><div class="metric-label">Completed</div><div class="metric-val c-green" id="m-done">—</div></div>
+        <div class="metric"><div class="metric-label">Streak</div><div class="metric-val c-amber">7 🔥</div></div>
+        <div class="metric"><div class="metric-label">Done %</div><div class="metric-val" id="m-pct">—</div></div>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+      <div class="section-label">Today's tasks</div>
+      <div class="task-list" id="task-list"><div class="loading"><div class="spinner"></div>Loading from Supabase...</div></div>
+      <div class="section-label">AI assistant</div>
+      <div class="ai-box">
+        <div class="ai-header"><div class="ai-pulse"></div>Daily planner AI</div>
+        <div class="ai-output" id="ai-out">Ask me anything about your schedule or goals...</div>
+        <div class="ai-row">
+          <input class="ai-input" id="ai-in" placeholder="What should I focus on today?" onkeydown="if(event.key==='Enter')ask()">
+          <button class="btn" onclick="ask()">Ask ↗</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GANTT -->
+    <div class="panel" id="panel-gantt">
+      <div class="gantt-toolbar">
+        <select class="sel" onchange="renderGantt(this.value)">
+          <option value="all">All categories</option>
+          <option value="Work">Work</option>
+          <option value="Project">Project</option>
+          <option value="Health">Health</option>
+          <option value="Learning">Learning</option>
+          <option value="School">School</option>
+          <option value="Personal">Personal</option>
+        </select>
+        <button class="btn" onclick="jumpToday()">Jump to today</button>
+      </div>
+      <div class="gantt-wrap" id="gantt-wrap">
+        <div class="loading"><div class="spinner"></div>Loading...</div>
+      </div>
+    </div>
+
+    <!-- ADD -->
+    <div class="panel" id="panel-add">
+      <div class="form-card">
+        <div class="frow">
+          <label class="flabel">Task name</label>
+          <input class="finput" id="f-name" placeholder="e.g. Implement EKF algorithm">
+        </div>
+        <div class="frow">
+          <label class="flabel">Category</label>
+          <select class="fsel" id="f-cat">
+            <option>Work</option><option>Project</option><option>Health</option>
+            <option>Learning</option><option>School</option><option>Personal</option>
+          </select>
+        </div>
+        <div class="frow2">
+          <div><label class="flabel">Start date</label><input class="finput" type="date" id="f-start"></div>
+          <div><label class="flabel">End date</label><input class="finput" type="date" id="f-end"></div>
+        </div>
+        <div class="frow">
+          <label class="flabel">Priority</label>
+          <select class="fsel" id="f-prio">
+            <option value="high">High</option>
+            <option value="med" selected>Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <div class="frow">
+          <label class="flabel">Notes (optional)</label>
+          <textarea class="ftarea" id="f-notes" rows="2" placeholder="Any extra context..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn primary" id="add-btn" onclick="addTask()">Add task</button>
+          <button class="btn" onclick="aiSuggest()">AI suggest ↗</button>
+        </div>
+      </div>
+      <div class="sug-area" id="sug-area"></div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="panel" id="panel-progress">
+      <div class="streak-row">
+        <div class="streak-num">7</div>
+        <div><div style="font-size:15px;font-weight:500">Day streak</div><div style="font-size:13px;color:var(--text2)">Keep it up!</div></div>
+      </div>
+      <div class="section-label">Category progress</div>
+      <div class="pcat-grid" id="pcat-grid"></div>
+      <div class="section-label">Weekly review</div>
+      <div class="ai-box">
+        <div class="ai-header"><div class="ai-pulse"></div>Weekly review AI</div>
+        <div class="ai-output" id="weekly-out">Click below for your personalized weekly review...</div>
+        <button class="btn" style="margin-top:10px" onclick="weeklyReview()">Generate review ↗</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification -->
+<div class="notif" id="notif">
+  <div class="notif-title" id="n-title"></div>
+  <div class="notif-body" id="n-body"></div>
+</div>
+
+<!-- Focus overlay -->
+<div class="focus-ov" id="focus-ov">
+  <div class="focus-hdr">
+    <div class="focus-title">Focus mode — today</div>
+    <button class="btn" onclick="focusMode()">Exit</button>
+  </div>
+  <div id="focus-list"></div>
+</div>
+
+<script>
+// === SUPABASE INIT ===
+const SUPABASE_URL = 'https://rdpsfurixorsdvjwzmub.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkcHNmdXJpeG9yc2R2and6bXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTk0NDIsImV4cCI6MjA4OTY5NTQ0Mn0.z-LDnc-IztR06uU87mGsYIY-W1mV0SuFq0t_EEs0zg4';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// === STATE ===
+const CATS = {
+  Work:     '#3B82F6',
+  Project:  '#8B5CF6',
+  Health:   '#10B981',
+  Learning: '#F59E0B',
+  School:   '#EC4899',
+  Personal: '#6B7280',
+};
+const todayDate = new Date();
+const todayStr = todayDate.toISOString().split('T')[0];
+let tasks = [];
+
+// === SYNC STATUS ===
+function setSyncStatus(status) {
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot' + (status === 'online' ? '' : status === 'syncing' ? ' syncing' : ' offline');
+  dot.title = status === 'online' ? 'Synced' : status === 'syncing' ? 'Syncing...' : 'Offline';
+}
+
+// === LOAD TASKS ===
+async function loadTasks() {
+  setSyncStatus('syncing');
+  try {
+    const { data, error } = await db.from('tasks').select('*').order('created_at', { ascending: true });
+    if (error) throw error;
+    tasks = data || [];
+    setSyncStatus('online');
+  } catch (e) {
+    console.error(e);
+    setSyncStatus('offline');
+    // Fall back to seed data if DB empty or error
+    if (!tasks.length) seedTasks();
+  }
+  renderToday();
+}
+
+// Seed default tasks on first load
+async function seedTasks() {
+  const seeds = [
+    { name:'BMS calibration session',           cat:'Work',     start_date:'2026-03-21', end_date:'2026-05-23', prio:'high', done:false },
+    { name:'Calibration tool development',       cat:'Work',     start_date:'2026-03-21', end_date:'2026-05-23', prio:'med',  done:false },
+    { name:'Literature review — SoC estimation', cat:'Project',  start_date:'2026-03-23', end_date:'2026-04-05', prio:'high', done:false },
+    { name:'HPPC dataset preprocessing',         cat:'Project',  start_date:'2026-03-28', end_date:'2026-04-05', prio:'med',  done:false },
+    { name:'EKF implementation',                 cat:'Project',  start_date:'2026-04-05', end_date:'2026-04-19', prio:'high', done:false },
+    { name:'UKF + bidirectional DC-DC',          cat:'Project',  start_date:'2026-04-28', end_date:'2026-05-16', prio:'high', done:false },
+    { name:'Gym session',                        cat:'Health',   start_date:'2026-03-21', end_date:'2026-05-23', prio:'med',  done:false },
+    { name:'Power electronics — LTspice',        cat:'Learning', start_date:'2026-03-21', end_date:'2026-04-15', prio:'low',  done:false },
+    { name:'Internship report writing',          cat:'School',   start_date:'2026-03-21', end_date:'2026-09-01', prio:'med',  done:false },
+    { name:'Meal prep',                          cat:'Health',   start_date:'2026-03-21', end_date:'2026-05-23', prio:'low',  done:false },
+  ];
+  const { data } = await db.from('tasks').insert(seeds).select();
+  if (data) tasks = data;
+  renderToday();
+}
+
+// === REAL-TIME SUBSCRIPTION ===
+db.channel('tasks-changes')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+    loadTasks();
+  })
+  .subscribe();
+
+// === TABS ===
+function sw(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.textContent.toLowerCase().startsWith(name.substring(0, 3))) t.classList.add('active');
+  });
+  if (name === 'gantt') renderGantt('all');
+  if (name === 'progress') renderProgress();
+}
+
+// === TODAY ===
+function getTodayTasks() {
+  return tasks.filter(t => t.start_date <= todayStr && t.end_date >= todayStr);
+}
+
+function renderToday() {
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('today-date').textContent = days[todayDate.getDay()] + ', ' + months[todayDate.getMonth()] + ' ' + todayDate.getDate() + ', ' + todayDate.getFullYear();
+
+  const today = getTodayTasks();
+  const done = today.filter(t => t.done).length;
+  document.getElementById('m-total').textContent = today.length;
+  document.getElementById('m-done').textContent = done;
+  document.getElementById('m-pct').textContent = today.length ? Math.round(done / today.length * 100) + '%' : '0%';
+  document.getElementById('prog').style.width = (today.length ? Math.round(done / today.length * 100) : 0) + '%';
+
+  const list = document.getElementById('task-list');
+  list.innerHTML = '';
+  if (!today.length) {
+    list.innerHTML = '<div class="empty">No tasks today — add some in the Add task tab!</div>';
+    return;
+  }
+  today.forEach(t => {
+    const color = CATS[t.cat] || CATS.Personal;
+    const pc = t.prio === 'high' ? 'ph' : t.prio === 'med' ? 'pm' : 'pl';
+    const el = document.createElement('div');
+    el.className = 'task-item' + (t.done ? ' done' : '');
+    el.innerHTML = `<div class="check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="task-info"><div class="task-name">${t.name}</div><div class="task-sub"><span class="dot" style="background:${color}"></span>${t.cat}</div></div><span class="prio-badge ${pc}">${t.prio}</span>`;
+    el.onclick = () => toggleTask(t.id, !t.done);
+    list.appendChild(el);
+  });
+}
+
+async function toggleTask(id, done) {
+  setSyncStatus('syncing');
+  tasks = tasks.map(t => t.id === id ? { ...t, done } : t);
+  renderToday();
+  await db.from('tasks').update({ done }).eq('id', id);
+  setSyncStatus('online');
+}
+
+// === GANTT ===
+function renderGantt(cat) {
+  const start = new Date('2026-03-21'), end = new Date('2026-09-30');
+  const days = [];
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) days.push(d.toISOString().split('T')[0]);
+  const rows = cat === 'all' ? tasks : tasks.filter(t => t.cat === cat);
+
+  let h = '<table class="gantt-tbl"><thead><tr><th>Task</th>';
+  days.forEach(ds => {
+    const d = new Date(ds + 'T00:00:00');
+    h += `<th style="min-width:22px;width:22px;font-size:10px;${ds === todayStr ? 'color:var(--blue)' : ''}">${d.getDate()}</th>`;
+  });
+  h += '</tr></thead><tbody>';
+  rows.forEach(t => {
+    const color = CATS[t.cat] || CATS.Personal;
+    h += `<tr><td title="${t.name}">${t.name}</td>`;
+    days.forEach(ds => {
+      const inRange = ds >= t.start_date && ds <= t.end_date;
+      const isToday = ds === todayStr;
+      const isMile = t.start_date === t.end_date && ds === t.start_date;
+      h += `<td class="gcell${isToday ? ' gtoday' : ''}">`;
+      if (isMile) h += `<div class="gmile" style="color:${color}">◆</div>`;
+      else if (inRange) {
+        const fl = ds === t.start_date, ll = ds === t.end_date;
+        const br = fl && ll ? '3px' : fl ? '3px 0 0 3px' : ll ? '0 3px 3px 0' : '0';
+        h += `<div class="gbar" style="background:${color};opacity:.82;border-radius:${br};margin-left:${fl ? '2px' : '0'};margin-right:${ll ? '2px' : '0'}"></div>`;
+      }
+      h += '</td>';
+    });
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  document.getElementById('gantt-wrap').innerHTML = h;
+}
+
+function jumpToday() {
+  const wrap = document.getElementById('gantt-wrap');
+  const ths = wrap.querySelectorAll('th');
+  ths.forEach(th => { if (th.style.color) wrap.scrollLeft = Math.max(0, th.offsetLeft - 200); });
+}
+
+// === ADD TASK ===
+async function addTask() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { showNotif('Missing field', 'Please enter a task name.'); return; }
+  const btn = document.getElementById('add-btn');
+  btn.disabled = true; btn.textContent = 'Adding...';
+  setSyncStatus('syncing');
+  const newTask = {
+    name,
+    cat: document.getElementById('f-cat').value,
+    start_date: document.getElementById('f-start').value || todayStr,
+    end_date: document.getElementById('f-end').value || todayStr,
+    prio: document.getElementById('f-prio').value,
+    done: false,
+    notes: document.getElementById('f-notes').value,
+  };
+  const { data, error } = await db.from('tasks').insert(newTask).select();
+  if (!error && data) {
+    tasks.push(data[0]);
+    renderToday();
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-notes').value = '';
+    showNotif('Task added!', '"' + name + '" synced to all your devices.');
+  } else {
+    showNotif('Error', 'Could not save task. Check connection.');
+  }
+  btn.disabled = false; btn.textContent = 'Add task';
+  setSyncStatus('online');
+}
+
+async function aiSuggest() {
+  const box = document.getElementById('sug-area');
+  box.innerHTML = '<div style="font-size:13px;color:var(--text2);padding:10px 0">Generating AI suggestions...</div>';
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 1000,
+        messages: [{ role: 'user', content: 'You are a productivity coach for an engineering student interning at Bertrandt doing BMS calibration for Renault, building a SoC Estimator with EKF/UKF in Python. Suggest 3 specific actionable tasks for this week. Respond ONLY with a JSON array: [{"name":"...","cat":"Work|Project|Health|Learning|School","prio":"high|med|low"}]. No markdown, no explanation.' }]
+      })
+    });
+    const data = await r.json();
+    const sugs = JSON.parse((data.content?.[0]?.text || '[]').replace(/```json|```/g, '').trim());
+    box.innerHTML = '<div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px">AI suggestions — click to add instantly</div>';
+    sugs.forEach(s => {
+      const color = CATS[s.cat] || CATS.Personal;
+      const el = document.createElement('div');
+      el.className = 'sug-item';
+      el.innerHTML = `<span class="dot" style="background:${color}"></span><span style="flex:1">${s.name}</span><span style="font-size:11px;color:var(--text2)">${s.cat}</span>`;
+      el.onclick = async () => {
+        const { data: d } = await db.from('tasks').insert({ name: s.name, cat: s.cat, start_date: todayStr, end_date: todayStr, prio: s.prio, done: false }).select();
+        if (d) { tasks.push(d[0]); renderToday(); showNotif('Added!', '"' + s.name + '" synced.'); el.style.opacity = '.35'; el.style.pointerEvents = 'none'; }
+      };
+      box.appendChild(el);
+    });
+  } catch (e) { box.innerHTML = '<div style="font-size:13px;color:#DC2626">Could not load suggestions.</div>'; }
+}
+
+// === AI ===
+async function ask() {
+  const q = document.getElementById('ai-in').value.trim();
+  if (!q) return;
+  const out = document.getElementById('ai-out');
+  out.textContent = 'Thinking...';
+  document.getElementById('ai-in').value = '';
+  const today = getTodayTasks();
+  const ctx = `You are a personal productivity assistant. Today is ${todayStr}. User's tasks today: ${today.map(t => t.name + ' (' + t.cat + ', ' + t.prio + (t.done ? ', done' : '') + ')').join('; ')}. Answer in 2-3 sentences.`;
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: ctx, messages: [{ role: 'user', content: q }] })
+    });
+    const data = await r.json();
+    out.textContent = data.content?.[0]?.text || 'No response.';
+  } catch (e) { out.textContent = 'Could not reach AI. Check your connection.'; }
+}
+
+async function weeklyReview() {
+  const out = document.getElementById('weekly-out');
+  out.textContent = 'Generating your weekly review...';
+  const done = tasks.filter(t => t.done).length;
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: `You are a productivity coach for an engineering student interning at Bertrandt (BMS calibration for Renault) and building a SoC Estimator with EKF/UKF. Stats: ${done}/${tasks.length} tasks completed. Give a concise 3-sentence weekly review: what likely went well, one improvement, and the top priority for next week.` }] })
+    });
+    const data = await r.json();
+    out.textContent = data.content?.[0]?.text || 'No response.';
+  } catch (e) { out.textContent = 'Could not reach AI.'; }
+}
+
+// === PROGRESS ===
+function renderProgress() {
+  const grid = document.getElementById('pcat-grid');
+  grid.innerHTML = '';
+  Object.entries(CATS).forEach(([cat, color]) => {
+    const ct = tasks.filter(t => t.cat === cat);
+    const dn = ct.filter(t => t.done).length;
+    const pct = ct.length ? Math.round(dn / ct.length * 100) : 0;
+    const el = document.createElement('div');
+    el.className = 'pcat';
+    el.innerHTML = `<div class="pcat-title"><span class="dot" style="background:${color}"></span>${cat}</div><div class="pbar-bg"><div class="pbar-fill" style="width:${pct}%;background:${color}"></div></div><div class="pstat">${dn}/${ct.length} tasks · ${pct}%</div>`;
+    grid.appendChild(el);
+  });
+}
+
+// === NOTIFICATIONS ===
+let nt = null;
+function showNotif(title, body) {
+  document.getElementById('n-title').textContent = title;
+  document.getElementById('n-body').textContent = body;
+  const el = document.getElementById('notif');
+  el.classList.add('show');
+  clearTimeout(nt);
+  nt = setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// === FOCUS MODE ===
+function focusMode() {
+  const ov = document.getElementById('focus-ov');
+  ov.classList.toggle('open');
+  if (ov.classList.contains('open')) {
+    const fl = document.getElementById('focus-list');
+    fl.innerHTML = '';
+    getTodayTasks().forEach(t => {
+      const color = CATS[t.cat] || CATS.Personal;
+      const el = document.createElement('div');
+      el.className = 'task-item' + (t.done ? ' done' : '');
+      el.style.marginBottom = '8px';
+      el.innerHTML = `<div class="check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="task-info"><div class="task-name" style="font-size:15px">${t.name}</div><div class="task-sub"><span class="dot" style="background:${color}"></span>${t.cat}</div></div>`;
+      el.onclick = async () => { await toggleTask(t.id, !t.done); focusMode(); setTimeout(focusMode, 80); };
+      fl.appendChild(el);
+    });
+  }
+}
+
+// === INIT ===
+document.getElementById('f-start').value = todayStr;
+document.getElementById('f-end').value = todayStr;
+loadTasks().then(() => {
+  setTimeout(() => showNotif('LifeGantt ready', getTodayTasks().length + ' tasks today — synced across all devices.'), 1000);
+});
+</script>
+</body>
+</html>
