@@ -378,16 +378,66 @@ function jumpToday(){
   ths.forEach(th=>{if(th.style.fontWeight==='700')wrap.scrollLeft=Math.max(0,th.offsetLeft-200);});
 }
 
+// ── ADD TASK — with duplicate merging ────────────────────────────────────────
 async function addTask(){
   const name=document.getElementById('f-name').value.trim();
   if(!name){showNotif('Missing field','Please enter a task name.');return;}
-  const btn=document.getElementById('add-btn');btn.disabled=true;btn.textContent='Adding...';
+
+  const btn=document.getElementById('add-btn');
+  btn.disabled=true;btn.textContent='Adding...';
   setSyncStatus('syncing');
-  const nt={name,cat:document.getElementById('f-cat').value,start_date:document.getElementById('f-start').value||todayStr,end_date:document.getElementById('f-end').value||todayStr,prio:document.getElementById('f-prio').value,done:false,notes:document.getElementById('f-notes').value};
-  const{data,error}=await db.from('tasks').insert(nt).select();
-  if(!error&&data){tasks.push(data[0]);renderToday();document.getElementById('f-name').value='';document.getElementById('f-notes').value='';showNotif('Task added!','"'+name+'" synced to all devices.');}
-  else showNotif('Error','Could not save task.');
-  btn.disabled=false;btn.textContent='Add task';setSyncStatus('online');
+
+  const newStart=document.getElementById('f-start').value||todayStr;
+  const newEnd=document.getElementById('f-end').value||todayStr;
+  const cat=document.getElementById('f-cat').value;
+  const prio=document.getElementById('f-prio').value;
+  const notes=document.getElementById('f-notes').value;
+
+  // ── Check for an existing task with the same name (case-insensitive) ──────
+  const existing=tasks.find(t=>t.name.toLowerCase()===name.toLowerCase());
+
+  if(existing){
+    // Expand the date range to encompass both the old and new dates
+    const mergedStart=existing.start_date<newStart?existing.start_date:newStart;
+    const mergedEnd=existing.end_date>newEnd?existing.end_date:newEnd;
+
+    // Only update if something actually changed
+    if(mergedStart!==existing.start_date||mergedEnd!==existing.end_date){
+      const{error}=await db.from('tasks')
+        .update({start_date:mergedStart,end_date:mergedEnd})
+        .eq('id',existing.id);
+
+      if(!error){
+        tasks=tasks.map(t=>t.id===existing.id
+          ?{...t,start_date:mergedStart,end_date:mergedEnd}
+          :t);
+        renderToday();
+        showNotif('Task updated!','"'+existing.name+'" date range expanded.');
+      } else {
+        showNotif('Error','Could not update task.');
+      }
+    } else {
+      // Dates are already covered — nothing to do
+      showNotif('Already exists','"'+existing.name+'" already covers those dates.');
+    }
+  } else {
+    // ── No duplicate — insert as a brand new task ────────────────────────
+    const nt={name,cat,start_date:newStart,end_date:newEnd,prio,done:false,notes};
+    const{data,error}=await db.from('tasks').insert(nt).select();
+
+    if(!error&&data){
+      tasks.push(data[0]);
+      renderToday();
+      document.getElementById('f-name').value='';
+      document.getElementById('f-notes').value='';
+      showNotif('Task added!','"'+name+'" synced to all devices.');
+    } else {
+      showNotif('Error','Could not save task.');
+    }
+  }
+
+  btn.disabled=false;btn.textContent='Add task';
+  setSyncStatus('online');
 }
 
 async function aiSuggest(){
@@ -461,7 +511,6 @@ async function downloadExcel(){
   const MONTHS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   const MDAYS=[31,28,31,30,31,30,31,31,30,31,30,31];
 
-  // Build full day list Jan-Dec 2026
   const year=2026;
   const allDays=[];
   for(let m=0;m<12;m++) for(let d=1;d<=MDAYS[m];d++) allDays.push({m,d,date:`${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,dow:new Date(year,m,d).getDay()});
@@ -472,18 +521,15 @@ async function downloadExcel(){
   const ws=wb.addWorksheet('Gantt 2026',{properties:{tabColor:{argb:'FF534AB7'}},views:[{state:'frozen',xSplit:3,ySplit:4}]});
   ws.showGridLines=false;
 
-  // Column widths
   ws.getColumn(1).width=33;
   ws.getColumn(2).width=15;
   ws.getColumn(3).width=20;
   for(let i=0;i<allDays.length;i++) ws.getColumn(i+4).width=2.2;
 
-  // Helper fills/fonts
   const f=(argb)=>({type:'pattern',pattern:'solid',fgColor:{argb:'FF'+argb}});
   const font=(bold,size,argb)=>({name:'Arial',bold,size,color:{argb:'FF'+argb}});
   const aln=(h,v='middle')=>({horizontal:h,vertical:v});
 
-  // ── Row 1: Title ──────────────────────────────────────────────────────────
   ws.getRow(1).height=28;
   ws.mergeCells(1,1,1,3);
   const t1=ws.getCell(1,1);
@@ -491,7 +537,6 @@ async function downloadExcel(){
   t1.font=font(true,13,'2C2C2A'); t1.fill=f('FAFAF9'); t1.alignment=aln('left');
   for(let i=0;i<allDays.length;i++) ws.getCell(1,i+4).fill=f('FAFAF9');
 
-  // ── Row 2: Month headers ──────────────────────────────────────────────────
   ws.getRow(2).height=17;
   let col=4;
   for(let m=0;m<12;m++){
@@ -503,11 +548,9 @@ async function downloadExcel(){
     col+=dm;
   }
 
-  // ── Row 3: Week headers ───────────────────────────────────────────────────
   ws.getRow(3).height=13;
   let wn=1,wstart=4,prevW=null;
   for(let i=0;i<allDays.length;i++){
-    const iw=new Date(year,allDays[i].m,allDays[i].d).getDay()==0?wn:null; // approximate
     const isoW=getISOWeek(new Date(year,allDays[i].m,allDays[i].d));
     ws.getCell(3,i+4).fill=f('F1EFE8');
     if(isoW!==prevW){
@@ -524,7 +567,6 @@ async function downloadExcel(){
   const wc=ws.getCell(3,wstart);
   wc.value='W'+wn; wc.font=font(false,7,'888880'); wc.fill=f('F1EFE8'); wc.alignment=aln('center');
 
-  // ── Row 4: day numbers ────────────────────────────────────────────────────
   ws.getRow(4).height=13;
   ws.getCell(4,1).value='Task'; ws.getCell(4,1).font=font(true,8,'666660'); ws.getCell(4,1).fill=f('F1EFE8'); ws.getCell(4,1).alignment=aln('left');
   ws.getCell(4,2).value='Priority'; ws.getCell(4,2).font=font(true,8,'666660'); ws.getCell(4,2).fill=f('F1EFE8'); ws.getCell(4,2).alignment=aln('center');
@@ -537,7 +579,6 @@ async function downloadExcel(){
     c.fill=f(isTod?'FADADD':isWe?'EDECEA':'F1EFE8'); c.alignment=aln('center');
   }
 
-  // ── Task rows ─────────────────────────────────────────────────────────────
   const grouped={};
   for(const cat of CAT_ORDER) grouped[cat]=[];
   for(const t of tasks){const c=t.cat||'Personal';if(grouped[c])grouped[c].push(t);else grouped['Personal'].push(t);}
@@ -547,7 +588,6 @@ async function downloadExcel(){
     const ctasks=grouped[cat];if(!ctasks||!ctasks.length)continue;
     const cfg=CAT_CFG[cat]||CAT_CFG.Personal;
 
-    // Category header
     ws.getRow(row).height=15;
     ws.mergeCells(row,1,row,3);
     const ch=ws.getCell(row,1);
@@ -563,25 +603,21 @@ async function downloadExcel(){
       const ts=t.start_date; const te=t.end_date;
       const done=t.done||false; const mile=ts===te;
 
-      // Col A
       const ca=ws.getCell(row,1);
       ca.value=(done?'✓  ':'  ')+t.name;
       ca.font={name:'Arial',size:9,color:{argb:'FF'+(done?'888880':'2C2C2A')},strike:done};
       ca.fill=f('FFFFFF'); ca.alignment=aln('left');
 
-      // Col B: priority
       const cb=ws.getCell(row,2);
       cb.value={high:'● High',med:'◐ Med',low:'○ Low'}[t.prio||'med']||'';
       cb.font=font(false,7,'BBBBBB'); cb.fill=f('EEEDFE'); cb.alignment=aln('center');
 
-      // Col C: duration
       const fmtD=s=>{const dt=new Date(s+'T00:00:00');return dt.getDate()+' '+MONTHS[dt.getMonth()];};
       const days_dur=Math.round((new Date(te)-new Date(ts))/86400000)+1;
       const cc=ws.getCell(row,3);
       cc.value=fmtD(ts)+' - '+fmtD(te)+'  ('+days_dur+'d)';
       cc.font=font(false,7,'666660'); cc.fill=f('EEEDFE'); cc.alignment=aln('center');
 
-      // Gantt cells
       let first=true;
       for(let i=0;i<allDays.length;i++){
         const {date,dow}=allDays[i];
@@ -600,13 +636,11 @@ async function downloadExcel(){
       }
       row++;
     }
-    // Spacer
     ws.getRow(row).height=5;
     for(let c2=1;c2<allDays.length+4;c2++) ws.getCell(row,c2).fill=f('FAFAF9');
     row++;
   }
 
-  // ── Download ──────────────────────────────────────────────────────────────
   const buffer=await wb.xlsx.writeBuffer();
   const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
   const url=URL.createObjectURL(blob);
@@ -634,27 +668,22 @@ function startClock(){
     const m=String(now.getMinutes()).padStart(2,'0');
     const s=String(now.getSeconds()).padStart(2,'0');
 
-    // Clock
     document.getElementById('clock-hm').textContent=h+':'+m;
     document.getElementById('clock-s').textContent=s;
 
-    // Day progress (seconds since midnight / 86400)
     const secsSinceMidnight=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
-    const dayPct=Math.round(secsSinceMidnight/864); // /86400*100
+    const dayPct=Math.round(secsSinceMidnight/864);
     document.getElementById('day-prog-fill').style.width=dayPct+'%';
     document.getElementById('day-pct-label').textContent=dayPct+'%';
 
-    // Auto-refresh at midnight
     const dateStr=now.toISOString().split('T')[0];
     if(lastDateStr && dateStr!==lastDateStr){
-      // Day changed — reload everything
       window.todayDate=new Date();
       window.todayStr=dateStr;
       loadTasks();
     }
     lastDateStr=dateStr;
 
-    // Countdown to next upcoming task end date
     updateCountdown(now);
   }
   tick();
@@ -669,7 +698,6 @@ function updateCountdown(now){
 
   const nowStr=now.toISOString().split('T')[0];
 
-  // Find the soonest end_date among active (not done) tasks
   const upcoming=tasks
     .filter(t=>!t.done && t.end_date>=nowStr)
     .sort((a,b)=>a.end_date.localeCompare(b.end_date));
@@ -677,7 +705,6 @@ function updateCountdown(now){
   if(!upcoming.length){box.style.display='none';return;}
 
   const next=upcoming[0];
-  // Deadline = end of that day (23:59:59)
   const deadline=new Date(next.end_date+'T23:59:59');
   const diffMs=deadline-now;
 
