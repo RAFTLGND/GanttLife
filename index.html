@@ -63,7 +63,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .gantt-tbl td:first-child{padding:0 10px;font-size:12px;white-space:nowrap;position:sticky;left:0;background:var(--bg);z-index:1;border-right:.5px solid var(--bd);max-width:165px;overflow:hidden;text-overflow:ellipsis;line-height:36px;color:var(--text)}
 .gantt-tbl tr:last-child td{border-bottom:none}
 .gcell{width:22px;min-width:22px;height:36px}.gbar{height:18px;margin:9px 0;border-radius:3px}.gtoday{background:rgba(59,130,246,.12)}.gmile{text-align:center;line-height:36px;font-size:12px}
-.cat-section{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:6px 10px;background:var(--bg2);border-bottom:.5px solid var(--bd);position:sticky;left:0}
 .form-card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:18px;max-width:520px}
 .flabel{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px;display:block}.frow{margin-bottom:13px}
 .finput,.fsel,.ftarea{width:100%;padding:8px 10px;border:.5px solid var(--bd2);border-radius:var(--r);font-size:13px;background:var(--bg2);color:var(--text);outline:none;font-family:inherit}
@@ -130,10 +129,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
       </div>
       <div class="day-prog-wrap">
-        <div class="day-prog-label">
-          <span>Day progress</span>
-          <span id="day-pct-label">0%</span>
-        </div>
+        <div class="day-prog-label"><span>Day progress</span><span id="day-pct-label">0%</span></div>
         <div class="day-prog-bar"><div class="day-prog-fill" id="day-prog-fill" style="width:0%"></div></div>
       </div>
       <div class="countdown-box" id="countdown-box" style="display:none">
@@ -243,16 +239,16 @@ const SEED=[
   {name:"Bring-up, test & measure efficiency",cat:"Project",start_date:"2026-08-10",end_date:"2026-09-05",prio:"high",done:false},
   {name:"Document & publish on GitHub",cat:"Project",start_date:"2026-09-05",end_date:"2026-09-20",prio:"med",done:false},
   {name:"BMS calibration tasks",cat:"Work",start_date:"2026-01-01",end_date:"2026-08-31",prio:"high",done:false},
-  {name:"Calibration tool dev (2–3×/week)",cat:"Work",start_date:"2026-01-01",end_date:"2026-08-31",prio:"med",done:false},
-  {name:"Monthly review meeting — Jan",cat:"Work",start_date:"2026-01-13",end_date:"2026-01-13",prio:"med",done:false},
-  {name:"Monthly review meeting — Feb",cat:"Work",start_date:"2026-02-10",end_date:"2026-02-10",prio:"med",done:false},
-  {name:"Monthly review meeting — Mar",cat:"Work",start_date:"2026-03-10",end_date:"2026-03-10",prio:"med",done:false},
-  {name:"Monthly review meeting — Apr",cat:"Work",start_date:"2026-04-14",end_date:"2026-04-14",prio:"med",done:false},
-  {name:"Monthly review meeting — May",cat:"Work",start_date:"2026-05-12",end_date:"2026-05-12",prio:"med",done:false},
-  {name:"Monthly review meeting — Jun",cat:"Work",start_date:"2026-06-09",end_date:"2026-06-09",prio:"med",done:false},
-  {name:"Monthly review meeting — Jul",cat:"Work",start_date:"2026-07-14",end_date:"2026-07-14",prio:"med",done:false},
+  {name:"Calibration tool dev (2-3x/week)",cat:"Work",start_date:"2026-01-01",end_date:"2026-08-31",prio:"med",done:false},
+  {name:"Monthly review meeting - Jan",cat:"Work",start_date:"2026-01-13",end_date:"2026-01-13",prio:"med",done:false},
+  {name:"Monthly review meeting - Feb",cat:"Work",start_date:"2026-02-10",end_date:"2026-02-10",prio:"med",done:false},
+  {name:"Monthly review meeting - Mar",cat:"Work",start_date:"2026-03-10",end_date:"2026-03-10",prio:"med",done:false},
+  {name:"Monthly review meeting - Apr",cat:"Work",start_date:"2026-04-14",end_date:"2026-04-14",prio:"med",done:false},
+  {name:"Monthly review meeting - May",cat:"Work",start_date:"2026-05-12",end_date:"2026-05-12",prio:"med",done:false},
+  {name:"Monthly review meeting - Jun",cat:"Work",start_date:"2026-06-09",end_date:"2026-06-09",prio:"med",done:false},
+  {name:"Monthly review meeting - Jul",cat:"Work",start_date:"2026-07-14",end_date:"2026-07-14",prio:"med",done:false},
   {name:"End of internship / final handover",cat:"Work",start_date:"2026-08-28",end_date:"2026-08-31",prio:"high",done:false},
-  {name:"Internship presentation prep (1×/wk)",cat:"School",start_date:"2026-01-01",end_date:"2026-08-31",prio:"med",done:false},
+  {name:"Internship presentation prep (1x/wk)",cat:"School",start_date:"2026-01-01",end_date:"2026-08-31",prio:"med",done:false},
   {name:"Internship report writing",cat:"School",start_date:"2026-04-01",end_date:"2026-08-15",prio:"high",done:false},
   {name:"Apr presentation rehearsal",cat:"School",start_date:"2026-04-09",end_date:"2026-04-13",prio:"med",done:false},
   {name:"May presentation rehearsal",cat:"School",start_date:"2026-05-06",end_date:"2026-05-11",prio:"med",done:false},
@@ -261,21 +257,21 @@ const SEED=[
   {name:"Oral presentation / defense",cat:"School",start_date:"2026-09-07",end_date:"2026-09-07",prio:"high",done:false},
   {name:"CV & LinkedIn overhaul",cat:"Career",start_date:"2026-09-01",end_date:"2026-09-15",prio:"high",done:false},
   {name:"Target company research",cat:"Career",start_date:"2026-09-10",end_date:"2026-09-30",prio:"med",done:false},
-  {name:"Applications — Tier 1 automotive",cat:"Career",start_date:"2026-09-15",end_date:"2026-11-15",prio:"high",done:false},
+  {name:"Applications - Tier 1 automotive",cat:"Career",start_date:"2026-09-15",end_date:"2026-11-15",prio:"high",done:false},
   {name:"Technical interview prep",cat:"Career",start_date:"2026-09-20",end_date:"2026-11-30",prio:"high",done:false},
   {name:"Networking events & LinkedIn outreach",cat:"Career",start_date:"2026-10-01",end_date:"2026-12-15",prio:"med",done:false},
   {name:"Offers & decision",cat:"Career",start_date:"2026-11-15",end_date:"2026-12-31",prio:"high",done:false},
   {name:"Python: NumPy/SciPy for KF",cat:"Learning",start_date:"2026-03-23",end_date:"2026-04-05",prio:"high",done:false},
-  {name:"Power electronics — Erickson ch.1–4",cat:"Learning",start_date:"2026-03-23",end_date:"2026-04-20",prio:"med",done:false},
-  {name:"LTspice — simulate buck converter",cat:"Learning",start_date:"2026-04-06",end_date:"2026-04-25",prio:"med",done:false},
+  {name:"Power electronics - Erickson ch.1-4",cat:"Learning",start_date:"2026-03-23",end_date:"2026-04-20",prio:"med",done:false},
+  {name:"LTspice - simulate buck converter",cat:"Learning",start_date:"2026-04-06",end_date:"2026-04-25",prio:"med",done:false},
   {name:"FOC / SVPWM theory",cat:"Learning",start_date:"2026-04-21",end_date:"2026-05-15",prio:"med",done:false},
   {name:"AUTOSAR fundamentals (self-study)",cat:"Learning",start_date:"2026-05-26",end_date:"2026-07-20",prio:"med",done:false},
-  {name:"ISO 26262 Part 6 — reading",cat:"Learning",start_date:"2026-06-01",end_date:"2026-07-31",prio:"low",done:false},
+  {name:"ISO 26262 Part 6 - reading",cat:"Learning",start_date:"2026-06-01",end_date:"2026-07-31",prio:"low",done:false},
   {name:"Embedded C / RTOS (FreeRTOS)",cat:"Learning",start_date:"2026-07-21",end_date:"2026-09-30",prio:"med",done:false},
   {name:"ML for engineering (time-series)",cat:"Learning",start_date:"2026-10-01",end_date:"2026-12-01",prio:"med",done:false},
-  {name:"Gym sessions (3×/week)",cat:"Health",start_date:"2026-01-01",end_date:"2026-12-31",prio:"med",done:false},
+  {name:"Gym sessions (3x/week)",cat:"Health",start_date:"2026-01-01",end_date:"2026-12-31",prio:"med",done:false},
   {name:"Sleep & recovery habit",cat:"Health",start_date:"2026-01-01",end_date:"2026-12-31",prio:"high",done:false},
-  {name:"Endurance goal (run 5K → 10K)",cat:"Health",start_date:"2026-06-01",end_date:"2026-09-30",prio:"low",done:false}
+  {name:"Endurance goal (run 5K to 10K)",cat:"Health",start_date:"2026-06-01",end_date:"2026-09-30",prio:"low",done:false}
 ];
 
 function setSyncStatus(s){const d=document.getElementById('sync-dot');d.className='sync-dot'+(s==='online'?'':s==='syncing'?' syncing':' offline');d.title=s==='online'?'Synced':s==='syncing'?'Syncing...':'Offline - using local data'}
@@ -312,7 +308,18 @@ function sw(name){
   if(name==='progress')renderProgress();
 }
 
-function getTodayTasks(){return tasks.filter(t=>t.start_date<=todayStr&&t.end_date>=todayStr);}
+// Today view: show a task name only once even if it has multiple segments covering today
+function getTodayTasks(){
+  const seen=new Set();
+  return tasks.filter(t=>{
+    if(t.start_date<=todayStr&&t.end_date>=todayStr){
+      const key=t.name.toLowerCase();
+      if(seen.has(key))return false;
+      seen.add(key);return true;
+    }
+    return false;
+  });
+}
 
 function renderToday(){
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -339,37 +346,89 @@ async function toggleTask(id,done){
   await db.from('tasks').update({done}).eq('id',id);setSyncStatus('online');
 }
 
+// ── GANTT — same name = one row, multiple separate bar segments ───────────────
 function renderGantt(cat){
   const s=new Date('2026-01-01'),e=new Date('2026-12-31');
-  const days=[];for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1))days.push(d.toISOString().split('T')[0]);
-  const rows=cat==='all'?tasks:tasks.filter(t=>t.cat===cat);
-  let months={},curM=null;
+  const days=[];
+  for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1))days.push(d.toISOString().split('T')[0]);
+
+  const filtered=cat==='all'?tasks:tasks.filter(t=>t.cat===cat);
   const mNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  let mSpans={};
+  days.forEach(ds=>{const m=parseInt(ds.split('-')[1])-1;mSpans[m]=(mSpans[m]||0)+1;});
+
   let h='<table class="gantt-tbl"><thead><tr><th rowspan="2">Task</th>';
-  // Month header row
-  let mSpans={};days.forEach(ds=>{const m=parseInt(ds.split('-')[1])-1;mSpans[m]=(mSpans[m]||0)+1;});
-  Object.entries(mSpans).forEach(([m,span])=>{h+=`<th colspan="${span}" style="border-left:.5px solid var(--bd)">${mNames[m]}</th>`;});
+  Object.entries(mSpans).forEach(([m,span])=>{
+    h+=`<th colspan="${span}" style="border-left:.5px solid var(--bd)">${mNames[m]}</th>`;
+  });
   h+='</tr><tr>';
-  days.forEach(ds=>{const d=new Date(ds+'T00:00:00');h+=`<th style="min-width:20px;width:20px;font-size:9px;${ds===todayStr?'color:var(--blue);font-weight:700':''}">${d.getDate()}</th>`;});
+  days.forEach(ds=>{
+    const d=new Date(ds+'T00:00:00');
+    h+=`<th style="min-width:20px;width:20px;font-size:9px;${ds===todayStr?'color:var(--blue);font-weight:700':''}">${d.getDate()}</th>`;
+  });
   h+='</tr></thead><tbody>';
-  // Group by category
-  const grouped={};rows.forEach(t=>{(grouped[t.cat]=grouped[t.cat]||[]).push(t);});
-  Object.entries(grouped).forEach(([cat,catTasks])=>{
+
+  // Group by category, then within each category group rows by task name
+  const catOrder=Object.keys(CATS);
+  const byCat={};
+  filtered.forEach(t=>{(byCat[t.cat]=byCat[t.cat]||[]).push(t);});
+
+  // Render in category order, then any extra cats not in CATS
+  const catsToRender=[...catOrder.filter(c=>byCat[c]),...Object.keys(byCat).filter(c=>!catOrder.includes(c))];
+
+  catsToRender.forEach(cat=>{
+    const catTasks=byCat[cat];if(!catTasks)return;
     const color=CATS[cat]||CATS.Personal;
     h+=`<tr><td colspan="${days.length+1}" style="padding:4px 10px;font-size:10px;font-weight:600;color:${color};background:var(--bg2);border-bottom:.5px solid var(--bd);text-transform:uppercase;letter-spacing:.5px">${cat}</td></tr>`;
+
+    // Group tasks by name (case-insensitive), preserving insertion order
+    const nameOrder=[];
+    const byName={};
     catTasks.forEach(t=>{
-      h+=`<tr><td title="${t.name}">${t.done?'✓ ':''}<span style="${t.done?'text-decoration:line-through;opacity:.5':''}">${t.name}</span></td>`;
+      const key=t.name.toLowerCase();
+      if(!byName[key]){byName[key]=[];nameOrder.push(key);}
+      byName[key].push(t);
+    });
+
+    nameOrder.forEach(key=>{
+      const segments=byName[key];
+      const rep=segments[0]; // representative for label/done display
+      const allDone=segments.every(t=>t.done);
+
+      h+=`<tr>`;
+      h+=`<td title="${rep.name}">${allDone?'&#10003; ':''}<span style="${allDone?'text-decoration:line-through;opacity:.5':''}">${rep.name}</span></td>`;
+
       days.forEach(ds=>{
-        const inRange=ds>=t.start_date&&ds<=t.end_date;const isToday=ds===todayStr;
-        const isMile=t.start_date===t.end_date&&ds===t.start_date;
+        const isToday=ds===todayStr;
         h+=`<td class="gcell${isToday?' gtoday':''}">`;
-        if(isMile)h+=`<div class="gmile" style="color:${color}">◆</div>`;
-        else if(inRange){const fl=ds===t.start_date,ll=ds===t.end_date;const br=fl&&ll?'3px':fl?'3px 0 0 3px':ll?'0 3px 3px 0':'0';h+=`<div class="gbar" style="background:${color};opacity:${t.done?.4:.82};border-radius:${br}"></div>`;}
+
+        // Check if any segment covers this day — render it, gaps stay empty
+        let hit=false;
+        for(const t of segments){
+          if(ds>=t.start_date&&ds<=t.end_date){
+            const isMile=t.start_date===t.end_date;
+            if(isMile){
+              h+=`<div class="gmile" style="color:${color}">&#9670;</div>`;
+            } else {
+              const isFirst=ds===t.start_date;
+              const isLast=ds===t.end_date;
+              const br=isFirst&&isLast?'3px':isFirst?'3px 0 0 3px':isLast?'0 3px 3px 0':'0';
+              h+=`<div class="gbar" style="background:${color};opacity:${allDone?.4:.82};border-radius:${br}"></div>`;
+            }
+            hit=true;
+            break;
+          }
+        }
+        // No segment covers this day — gap, cell left blank
         h+='</td>';
-      });h+='</tr>';
+      });
+      h+='</tr>';
     });
   });
-  h+='</tbody></table>';document.getElementById('gantt-wrap').innerHTML=h;
+
+  h+='</tbody></table>';
+  document.getElementById('gantt-wrap').innerHTML=h;
 }
 
 function jumpToday(){
@@ -378,66 +437,31 @@ function jumpToday(){
   ths.forEach(th=>{if(th.style.fontWeight==='700')wrap.scrollLeft=Math.max(0,th.offsetLeft-200);});
 }
 
-// ── ADD TASK — with duplicate merging ────────────────────────────────────────
+// ── ADD TASK — always inserts fresh; Gantt groups same names visually ─────────
 async function addTask(){
   const name=document.getElementById('f-name').value.trim();
   if(!name){showNotif('Missing field','Please enter a task name.');return;}
-
-  const btn=document.getElementById('add-btn');
-  btn.disabled=true;btn.textContent='Adding...';
+  const btn=document.getElementById('add-btn');btn.disabled=true;btn.textContent='Adding...';
   setSyncStatus('syncing');
-
-  const newStart=document.getElementById('f-start').value||todayStr;
-  const newEnd=document.getElementById('f-end').value||todayStr;
-  const cat=document.getElementById('f-cat').value;
-  const prio=document.getElementById('f-prio').value;
-  const notes=document.getElementById('f-notes').value;
-
-  // ── Check for an existing task with the same name (case-insensitive) ──────
-  const existing=tasks.find(t=>t.name.toLowerCase()===name.toLowerCase());
-
-  if(existing){
-    // Expand the date range to encompass both the old and new dates
-    const mergedStart=existing.start_date<newStart?existing.start_date:newStart;
-    const mergedEnd=existing.end_date>newEnd?existing.end_date:newEnd;
-
-    // Only update if something actually changed
-    if(mergedStart!==existing.start_date||mergedEnd!==existing.end_date){
-      const{error}=await db.from('tasks')
-        .update({start_date:mergedStart,end_date:mergedEnd})
-        .eq('id',existing.id);
-
-      if(!error){
-        tasks=tasks.map(t=>t.id===existing.id
-          ?{...t,start_date:mergedStart,end_date:mergedEnd}
-          :t);
-        renderToday();
-        showNotif('Task updated!','"'+existing.name+'" date range expanded.');
-      } else {
-        showNotif('Error','Could not update task.');
-      }
-    } else {
-      // Dates are already covered — nothing to do
-      showNotif('Already exists','"'+existing.name+'" already covers those dates.');
-    }
+  const nt={
+    name,
+    cat:document.getElementById('f-cat').value,
+    start_date:document.getElementById('f-start').value||todayStr,
+    end_date:document.getElementById('f-end').value||todayStr,
+    prio:document.getElementById('f-prio').value,
+    done:false,
+    notes:document.getElementById('f-notes').value
+  };
+  const{data,error}=await db.from('tasks').insert(nt).select();
+  if(!error&&data){
+    tasks.push(data[0]);renderToday();
+    document.getElementById('f-name').value='';
+    document.getElementById('f-notes').value='';
+    showNotif('Task added!','"'+name+'" synced to all devices.');
   } else {
-    // ── No duplicate — insert as a brand new task ────────────────────────
-    const nt={name,cat,start_date:newStart,end_date:newEnd,prio,done:false,notes};
-    const{data,error}=await db.from('tasks').insert(nt).select();
-
-    if(!error&&data){
-      tasks.push(data[0]);
-      renderToday();
-      document.getElementById('f-name').value='';
-      document.getElementById('f-notes').value='';
-      showNotif('Task added!','"'+name+'" synced to all devices.');
-    } else {
-      showNotif('Error','Could not save task.');
-    }
+    showNotif('Error','Could not save task.');
   }
-
-  btn.disabled=false;btn.textContent='Add task';
-  setSyncStatus('online');
+  btn.disabled=false;btn.textContent='Add task';setSyncStatus('online');
 }
 
 async function aiSuggest(){
@@ -447,7 +471,16 @@ async function aiSuggest(){
     const data=await r.json();
     const sugs=JSON.parse((data.content?.[0]?.text||'[]').replace(/```json|```/g,'').trim());
     box.innerHTML='<div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px">AI suggestions — click to add</div>';
-    sugs.forEach(s=>{const color=CATS[s.cat]||CATS.Personal;const el=document.createElement('div');el.className='sug-item';el.innerHTML=`<span class="dot" style="background:${color}"></span><span style="flex:1">${s.name}</span><span style="font-size:11px;color:var(--text2)">${s.cat}</span>`;el.onclick=async()=>{const{data:d}=await db.from('tasks').insert({name:s.name,cat:s.cat,start_date:todayStr,end_date:todayStr,prio:s.prio,done:false}).select();if(d){tasks.push(d[0]);renderToday();showNotif('Added!','"'+s.name+'" synced.');el.style.opacity='.35';el.style.pointerEvents='none';}};box.appendChild(el);});
+    sugs.forEach(s=>{
+      const color=CATS[s.cat]||CATS.Personal;
+      const el=document.createElement('div');el.className='sug-item';
+      el.innerHTML=`<span class="dot" style="background:${color}"></span><span style="flex:1">${s.name}</span><span style="font-size:11px;color:var(--text2)">${s.cat}</span>`;
+      el.onclick=async()=>{
+        const{data:d}=await db.from('tasks').insert({name:s.name,cat:s.cat,start_date:todayStr,end_date:todayStr,prio:s.prio,done:false}).select();
+        if(d){tasks.push(d[0]);renderToday();showNotif('Added!','"'+s.name+'" synced.');el.style.opacity='.35';el.style.pointerEvents='none';}
+      };
+      box.appendChild(el);
+    });
   }catch(e){box.innerHTML='<div style="font-size:13px;color:#DC2626">Could not load suggestions.</div>';}
 }
 
@@ -456,15 +489,19 @@ async function ask(){
   const out=document.getElementById('ai-out');out.textContent='Thinking...';document.getElementById('ai-in').value='';
   const today=getTodayTasks();
   const ctx=`You are a personal productivity assistant. Today is ${todayStr}. Tasks today: ${today.map(t=>t.name+' ('+t.cat+', '+t.prio+(t.done?', done':'')+')').join('; ')}. Answer in 2-3 sentences.`;
-  try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:ctx,messages:[{role:'user',content:q}]})});const data=await r.json();out.textContent=data.content?.[0]?.text||'No response.';}
-  catch(e){out.textContent='Could not reach AI.';}
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:ctx,messages:[{role:'user',content:q}]})});
+    const data=await r.json();out.textContent=data.content?.[0]?.text||'No response.';
+  }catch(e){out.textContent='Could not reach AI.';}
 }
 
 async function weeklyReview(){
   const out=document.getElementById('weekly-out');out.textContent='Generating your weekly review...';
   const done=tasks.filter(t=>t.done).length;
-  try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:`You are a productivity coach for an engineering student interning at Bertrandt (BMS calibration for Renault), building a SoC Estimator (EKF/UKF). Stats: ${done}/${tasks.length} tasks completed. Give a concise 3-sentence weekly review: what likely went well, one improvement, and the top priority for next week.`}]})});const data=await r.json();out.textContent=data.content?.[0]?.text||'No response.';}
-  catch(e){out.textContent='Could not reach AI.';}
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:`You are a productivity coach for an engineering student interning at Bertrandt (BMS calibration for Renault), building a SoC Estimator (EKF/UKF). Stats: ${done}/${tasks.length} tasks completed. Give a concise 3-sentence weekly review: what likely went well, one improvement, and the top priority for next week.`}]})});
+    const data=await r.json();out.textContent=data.content?.[0]?.text||'No response.';
+  }catch(e){out.textContent='Could not reach AI.';}
 }
 
 function renderProgress(){
@@ -472,7 +509,7 @@ function renderProgress(){
   Object.entries(CATS).forEach(([cat,color])=>{
     const ct=tasks.filter(t=>t.cat===cat);const dn=ct.filter(t=>t.done).length;const pct=ct.length?Math.round(dn/ct.length*100):0;
     const el=document.createElement('div');el.className='pcat';
-    el.innerHTML=`<div class="pcat-title"><span class="dot" style="background:${color}"></span>${cat}</div><div class="pbar-bg"><div class="pbar-fill" style="width:${pct}%;background:${color}"></div></div><div class="pstat">${dn}/${ct.length} tasks · ${pct}%</div>`;
+    el.innerHTML=`<div class="pcat-title"><span class="dot" style="background:${color}"></span>${cat}</div><div class="pbar-bg"><div class="pbar-fill" style="width:${pct}%;background:${color}"></div></div><div class="pstat">${dn}/${ct.length} tasks (segments) &middot; ${pct}%</div>`;
     grid.appendChild(el);
   });
 }
@@ -484,246 +521,140 @@ function focusMode(){
   const ov=document.getElementById('focus-ov');ov.classList.toggle('open');
   if(ov.classList.contains('open')){
     const fl=document.getElementById('focus-list');fl.innerHTML='';
-    getTodayTasks().forEach(t=>{const color=CATS[t.cat]||CATS.Personal;const el=document.createElement('div');el.className='task-item'+(t.done?' done':'');el.style.marginBottom='8px';el.innerHTML=`<div class="check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="task-info"><div class="task-name" style="font-size:15px">${t.name}</div><div class="task-sub"><span class="dot" style="background:${color}"></span>${t.cat}</div></div>`;el.onclick=async()=>{await toggleTask(t.id,!t.done);focusMode();setTimeout(focusMode,80);};fl.appendChild(el);});
+    getTodayTasks().forEach(t=>{
+      const color=CATS[t.cat]||CATS.Personal;
+      const el=document.createElement('div');el.className='task-item'+(t.done?' done':'');el.style.marginBottom='8px';
+      el.innerHTML=`<div class="check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="task-info"><div class="task-name" style="font-size:15px">${t.name}</div><div class="task-sub"><span class="dot" style="background:${color}"></span>${t.cat}</div></div>`;
+      el.onclick=async()=>{await toggleTask(t.id,!t.done);focusMode();setTimeout(focusMode,80);};
+      fl.appendChild(el);
+    });
   }
 }
 
 document.getElementById('f-start').value=todayStr;
 document.getElementById('f-end').value=todayStr;
 startClock();
-loadTasks().then(()=>setTimeout(()=>showNotif('LifeGantt ready ✓',getTodayTasks().length+' tasks today, synced across all devices.'),1200));
+loadTasks().then(()=>setTimeout(()=>showNotif('LifeGantt ready',getTodayTasks().length+' tasks today, synced across all devices.'),1200));
 
-// ── EXCEL EXPORT ─────────────────────────────────────────────────────────────
+// ── EXCEL EXPORT ──────────────────────────────────────────────────────────────
 async function downloadExcel(){
-  const btn=document.getElementById('dl-btn');
-  btn.textContent='Building...';btn.disabled=true;
-
+  const btn=document.getElementById('dl-btn');btn.textContent='Building...';btn.disabled=true;
   const CAT_CFG={
-    Project: {hbg:'534AB7',bar:'8A6ED8',label:'SoC Estimator & Hardware Projects'},
-    Work:    {hbg:'185FA5',bar:'3785DE',label:'Work — Internship'},
-    School:  {hbg:'854F0B',bar:'E07B1C',label:'School / Report'},
-    Career:  {hbg:'712B13',bar:'D85A30',label:'Job Search / Career'},
+    Project:{hbg:'534AB7',bar:'8A6ED8',label:'SoC Estimator & Hardware Projects'},
+    Work:   {hbg:'185FA5',bar:'3785DE',label:'Work - Internship'},
+    School: {hbg:'854F0B',bar:'E07B1C',label:'School / Report'},
+    Career: {hbg:'712B13',bar:'D85A30',label:'Job Search / Career'},
     Learning:{hbg:'0F6E56',bar:'1DA875',label:'Learning'},
-    Health:  {hbg:'993556',bar:'D4537E',label:'Health & Fitness'},
+    Health: {hbg:'993556',bar:'D4537E',label:'Health & Fitness'},
     Personal:{hbg:'444441',bar:'888880',label:'Personal'},
   };
   const CAT_ORDER=['Project','Work','School','Career','Learning','Health','Personal'];
   const MONTHS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   const MDAYS=[31,28,31,30,31,30,31,31,30,31,30,31];
-
   const year=2026;
   const allDays=[];
   for(let m=0;m<12;m++) for(let d=1;d<=MDAYS[m];d++) allDays.push({m,d,date:`${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,dow:new Date(year,m,d).getDay()});
   const todayISO=new Date().toISOString().split('T')[0];
-
-  const wb=new ExcelJS.Workbook();
-  wb.creator='LifeGantt'; wb.created=new Date();
+  const wb=new ExcelJS.Workbook();wb.creator='LifeGantt';wb.created=new Date();
   const ws=wb.addWorksheet('Gantt 2026',{properties:{tabColor:{argb:'FF534AB7'}},views:[{state:'frozen',xSplit:3,ySplit:4}]});
   ws.showGridLines=false;
-
-  ws.getColumn(1).width=33;
-  ws.getColumn(2).width=15;
-  ws.getColumn(3).width=20;
+  ws.getColumn(1).width=33;ws.getColumn(2).width=15;ws.getColumn(3).width=20;
   for(let i=0;i<allDays.length;i++) ws.getColumn(i+4).width=2.2;
-
   const f=(argb)=>({type:'pattern',pattern:'solid',fgColor:{argb:'FF'+argb}});
   const font=(bold,size,argb)=>({name:'Arial',bold,size,color:{argb:'FF'+argb}});
   const aln=(h,v='middle')=>({horizontal:h,vertical:v});
-
-  ws.getRow(1).height=28;
-  ws.mergeCells(1,1,1,3);
-  const t1=ws.getCell(1,1);
-  t1.value='2026 Life & Career Planner  ·  Full Year';
-  t1.font=font(true,13,'2C2C2A'); t1.fill=f('FAFAF9'); t1.alignment=aln('left');
+  ws.getRow(1).height=28;ws.mergeCells(1,1,1,3);
+  const t1=ws.getCell(1,1);t1.value='2026 Life & Career Planner - Full Year';
+  t1.font=font(true,13,'2C2C2A');t1.fill=f('FAFAF9');t1.alignment=aln('left');
   for(let i=0;i<allDays.length;i++) ws.getCell(1,i+4).fill=f('FAFAF9');
-
-  ws.getRow(2).height=17;
-  let col=4;
-  for(let m=0;m<12;m++){
-    const dm=MDAYS[m];
-    ws.mergeCells(2,col,2,col+dm-1);
-    const mc=ws.getCell(2,col);
-    mc.value=MONTHS[m]; mc.font=font(true,8,'444441'); mc.fill=f('E8E6E0'); mc.alignment=aln('center');
-    for(let dc=col;dc<col+dm;dc++) ws.getCell(2,dc).fill=f('E8E6E0');
-    col+=dm;
-  }
-
-  ws.getRow(3).height=13;
-  let wn=1,wstart=4,prevW=null;
-  for(let i=0;i<allDays.length;i++){
-    const isoW=getISOWeek(new Date(year,allDays[i].m,allDays[i].d));
-    ws.getCell(3,i+4).fill=f('F1EFE8');
-    if(isoW!==prevW){
-      if(prevW!==null){
-        try{ws.mergeCells(3,wstart,3,i+3);}catch(e){}
-        const wc=ws.getCell(3,wstart);
-        wc.value='W'+wn; wc.font=font(false,7,'888880'); wc.fill=f('F1EFE8'); wc.alignment=aln('center');
-        wn++;
-      }
-      wstart=i+4; prevW=isoW;
-    }
-  }
+  ws.getRow(2).height=17;let col=4;
+  for(let m=0;m<12;m++){const dm=MDAYS[m];ws.mergeCells(2,col,2,col+dm-1);const mc=ws.getCell(2,col);mc.value=MONTHS[m];mc.font=font(true,8,'444441');mc.fill=f('E8E6E0');mc.alignment=aln('center');for(let dc=col;dc<col+dm;dc++) ws.getCell(2,dc).fill=f('E8E6E0');col+=dm;}
+  ws.getRow(3).height=13;let wn=1,wstart=4,prevW=null;
+  for(let i=0;i<allDays.length;i++){const isoW=getISOWeek(new Date(year,allDays[i].m,allDays[i].d));ws.getCell(3,i+4).fill=f('F1EFE8');if(isoW!==prevW){if(prevW!==null){try{ws.mergeCells(3,wstart,3,i+3);}catch(e){}const wc=ws.getCell(3,wstart);wc.value='W'+wn;wc.font=font(false,7,'888880');wc.fill=f('F1EFE8');wc.alignment=aln('center');wn++;}wstart=i+4;prevW=isoW;}}
   try{ws.mergeCells(3,wstart,3,allDays.length+3);}catch(e){}
-  const wc=ws.getCell(3,wstart);
-  wc.value='W'+wn; wc.font=font(false,7,'888880'); wc.fill=f('F1EFE8'); wc.alignment=aln('center');
-
+  const wc=ws.getCell(3,wstart);wc.value='W'+wn;wc.font=font(false,7,'888880');wc.fill=f('F1EFE8');wc.alignment=aln('center');
   ws.getRow(4).height=13;
-  ws.getCell(4,1).value='Task'; ws.getCell(4,1).font=font(true,8,'666660'); ws.getCell(4,1).fill=f('F1EFE8'); ws.getCell(4,1).alignment=aln('left');
-  ws.getCell(4,2).value='Priority'; ws.getCell(4,2).font=font(true,8,'666660'); ws.getCell(4,2).fill=f('F1EFE8'); ws.getCell(4,2).alignment=aln('center');
-  ws.getCell(4,3).value='Duration'; ws.getCell(4,3).font=font(true,8,'666660'); ws.getCell(4,3).fill=f('F1EFE8'); ws.getCell(4,3).alignment=aln('center');
-  for(let i=0;i<allDays.length;i++){
-    const {d,dow,date}=allDays[i];
-    const isWe=dow===0||dow===6; const isTod=date===todayISO;
-    const c=ws.getCell(4,i+4);
-    c.value=String(d); c.font=font(isTod,7,isTod?'3785DE':'888880');
-    c.fill=f(isTod?'FADADD':isWe?'EDECEA':'F1EFE8'); c.alignment=aln('center');
-  }
-
-  const grouped={};
-  for(const cat of CAT_ORDER) grouped[cat]=[];
+  ['Task','Priority','Duration'].forEach((v,i)=>{const c=ws.getCell(4,i+1);c.value=v;c.font=font(true,8,'666660');c.fill=f('F1EFE8');c.alignment=aln(i===0?'left':'center');});
+  for(let i=0;i<allDays.length;i++){const{d,dow,date}=allDays[i];const isWe=dow===0||dow===6;const isTod=date===todayISO;const c=ws.getCell(4,i+4);c.value=String(d);c.font=font(isTod,7,isTod?'3785DE':'888880');c.fill=f(isTod?'FADADD':isWe?'EDECEA':'F1EFE8');c.alignment=aln('center');}
+  const grouped={};for(const cat of CAT_ORDER) grouped[cat]=[];
   for(const t of tasks){const c=t.cat||'Personal';if(grouped[c])grouped[c].push(t);else grouped['Personal'].push(t);}
-
   let row=5;
   for(const cat of CAT_ORDER){
     const ctasks=grouped[cat];if(!ctasks||!ctasks.length)continue;
     const cfg=CAT_CFG[cat]||CAT_CFG.Personal;
-
-    ws.getRow(row).height=15;
-    ws.mergeCells(row,1,row,3);
-    const ch=ws.getCell(row,1);
-    ch.value='  \u25b8  '+cfg.label; ch.font=font(true,9,'FFFFFF'); ch.fill=f(cfg.hbg); ch.alignment=aln('left');
-    for(let i=0;i<allDays.length;i++){
-      const {dow}=allDays[i];
-      ws.getCell(row,i+4).fill=f(dow===0||dow===6?'EDECEA':cfg.hbg);
-    }
+    ws.getRow(row).height=15;ws.mergeCells(row,1,row,3);
+    const ch=ws.getCell(row,1);ch.value='  > '+cfg.label;ch.font=font(true,9,'FFFFFF');ch.fill=f(cfg.hbg);ch.alignment=aln('left');
+    for(let i=0;i<allDays.length;i++){const{dow}=allDays[i];ws.getCell(row,i+4).fill=f(dow===0||dow===6?'EDECEA':cfg.hbg);}
     row++;
-
-    for(const t of ctasks){
+    const nameOrder=[];const byName={};
+    ctasks.forEach(t=>{const key=t.name.toLowerCase();if(!byName[key]){byName[key]=[];nameOrder.push(key);}byName[key].push(t);});
+    for(const key of nameOrder){
+      const segs=byName[key];const rep=segs[0];const allDone=segs.every(t=>t.done);
       ws.getRow(row).height=18;
-      const ts=t.start_date; const te=t.end_date;
-      const done=t.done||false; const mile=ts===te;
-
-      const ca=ws.getCell(row,1);
-      ca.value=(done?'✓  ':'  ')+t.name;
-      ca.font={name:'Arial',size:9,color:{argb:'FF'+(done?'888880':'2C2C2A')},strike:done};
-      ca.fill=f('FFFFFF'); ca.alignment=aln('left');
-
-      const cb=ws.getCell(row,2);
-      cb.value={high:'● High',med:'◐ Med',low:'○ Low'}[t.prio||'med']||'';
-      cb.font=font(false,7,'BBBBBB'); cb.fill=f('EEEDFE'); cb.alignment=aln('center');
-
+      const ca=ws.getCell(row,1);ca.value=(allDone?'✓  ':'  ')+rep.name;ca.font={name:'Arial',size:9,color:{argb:'FF'+(allDone?'888880':'2C2C2A')},strike:allDone};ca.fill=f('FFFFFF');ca.alignment=aln('left');
+      const cb=ws.getCell(row,2);cb.value={high:'● High',med:'◐ Med',low:'○ Low'}[rep.prio||'med']||'';cb.font=font(false,7,'BBBBBB');cb.fill=f('EEEDFE');cb.alignment=aln('center');
       const fmtD=s=>{const dt=new Date(s+'T00:00:00');return dt.getDate()+' '+MONTHS[dt.getMonth()];};
-      const days_dur=Math.round((new Date(te)-new Date(ts))/86400000)+1;
-      const cc=ws.getCell(row,3);
-      cc.value=fmtD(ts)+' - '+fmtD(te)+'  ('+days_dur+'d)';
-      cc.font=font(false,7,'666660'); cc.fill=f('EEEDFE'); cc.alignment=aln('center');
-
-      let first=true;
+      const durStr=segs.map(t=>fmtD(t.start_date)+(t.start_date!==t.end_date?' - '+fmtD(t.end_date):'')).join(' | ');
+      const cc=ws.getCell(row,3);cc.value=durStr;cc.font=font(false,7,'666660');cc.fill=f('EEEDFE');cc.alignment=aln('center');
       for(let i=0;i<allDays.length;i++){
-        const {date,dow}=allDays[i];
-        const inR=date>=ts&&date<=te; const isWe=dow===0||dow===6;
-        const cell=ws.getCell(row,i+4);
-        if(inR){
-          if(mile){
-            cell.value='◆'; cell.font=font(true,8,cfg.hbg); cell.fill=f('FFFFFF'); cell.alignment=aln('center');
-          } else {
-            cell.fill=f(cfg.bar);
-            if(first){cell.value=t.name;cell.font=font(true,7,'FFFFFF');cell.alignment=aln('left');first=false;}
+        const{date,dow}=allDays[i];const isWe=dow===0||dow===6;
+        const cell=ws.getCell(row,i+4);let painted=false;
+        for(const t of segs){
+          if(date>=t.start_date&&date<=t.end_date){
+            if(t.start_date===t.end_date){cell.value='◆';cell.font=font(true,8,cfg.hbg);cell.fill=f('FFFFFF');cell.alignment=aln('center');}
+            else{cell.fill=f(cfg.bar);}
+            painted=true;break;
           }
-        } else {
-          cell.fill=f(isWe?'EDECEA':'F5F4F2');
         }
+        if(!painted)cell.fill=f(isWe?'EDECEA':'F5F4F2');
       }
       row++;
     }
-    ws.getRow(row).height=5;
-    for(let c2=1;c2<allDays.length+4;c2++) ws.getCell(row,c2).fill=f('FAFAF9');
-    row++;
+    ws.getRow(row).height=5;for(let c2=1;c2<allDays.length+4;c2++) ws.getCell(row,c2).fill=f('FAFAF9');row++;
   }
-
   const buffer=await wb.xlsx.writeBuffer();
   const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url; a.download='LifeGantt_2026.xlsx'; a.click();
-  URL.revokeObjectURL(url);
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='LifeGantt_2026.xlsx';a.click();URL.revokeObjectURL(url);
   showNotif('Download ready!','LifeGantt_2026.xlsx saved to your device.');
-  btn.textContent='↓ Excel'; btn.disabled=false;
+  btn.textContent='↓ Excel';btn.disabled=false;
 }
 
-function getISOWeek(d){
-  const date=new Date(d.getTime());
-  date.setHours(0,0,0,0);
-  date.setDate(date.getDate()+3-(date.getDay()+6)%7);
-  const week1=new Date(date.getFullYear(),0,4);
-  return 1+Math.round(((date.getTime()-week1.getTime())/86400000-3+(week1.getDay()+6)%7)/7);
-}
+function getISOWeek(d){const date=new Date(d.getTime());date.setHours(0,0,0,0);date.setDate(date.getDate()+3-(date.getDay()+6)%7);const week1=new Date(date.getFullYear(),0,4);return 1+Math.round(((date.getTime()-week1.getTime())/86400000-3+(week1.getDay()+6)%7)/7);}
 
-// ── LIVE CLOCK + DAY PROGRESS + COUNTDOWN ────────────────────────────────────
+// ── LIVE CLOCK + DAY PROGRESS + COUNTDOWN ─────────────────────────────────────
 function startClock(){
   let lastDateStr='';
   function tick(){
     const now=new Date();
-    const h=String(now.getHours()).padStart(2,'0');
-    const m=String(now.getMinutes()).padStart(2,'0');
-    const s=String(now.getSeconds()).padStart(2,'0');
-
+    const h=String(now.getHours()).padStart(2,'0');const m=String(now.getMinutes()).padStart(2,'0');const s=String(now.getSeconds()).padStart(2,'0');
     document.getElementById('clock-hm').textContent=h+':'+m;
     document.getElementById('clock-s').textContent=s;
-
     const secsSinceMidnight=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
     const dayPct=Math.round(secsSinceMidnight/864);
     document.getElementById('day-prog-fill').style.width=dayPct+'%';
     document.getElementById('day-pct-label').textContent=dayPct+'%';
-
     const dateStr=now.toISOString().split('T')[0];
-    if(lastDateStr && dateStr!==lastDateStr){
-      window.todayDate=new Date();
-      window.todayStr=dateStr;
-      loadTasks();
-    }
+    if(lastDateStr&&dateStr!==lastDateStr){window.todayDate=new Date();window.todayStr=dateStr;loadTasks();}
     lastDateStr=dateStr;
-
     updateCountdown(now);
   }
-  tick();
-  setInterval(tick,1000);
+  tick();setInterval(tick,1000);
 }
 
 function updateCountdown(now){
-  const box=document.getElementById('countdown-box');
-  const label=document.getElementById('countdown-label');
-  const timeEl=document.getElementById('countdown-time');
+  const box=document.getElementById('countdown-box');const label=document.getElementById('countdown-label');const timeEl=document.getElementById('countdown-time');
   if(!tasks||!tasks.length){box.style.display='none';return;}
-
   const nowStr=now.toISOString().split('T')[0];
-
-  const upcoming=tasks
-    .filter(t=>!t.done && t.end_date>=nowStr)
-    .sort((a,b)=>a.end_date.localeCompare(b.end_date));
-
+  const upcoming=tasks.filter(t=>!t.done&&t.end_date>=nowStr).sort((a,b)=>a.end_date.localeCompare(b.end_date));
   if(!upcoming.length){box.style.display='none';return;}
-
-  const next=upcoming[0];
-  const deadline=new Date(next.end_date+'T23:59:59');
-  const diffMs=deadline-now;
-
+  const next=upcoming[0];const deadline=new Date(next.end_date+'T23:59:59');const diffMs=deadline-now;
   if(diffMs<0){box.style.display='none';return;}
-
-  box.style.display='flex';
-  label.textContent='Deadline: '+next.name;
-
-  const totalSecs=Math.floor(diffMs/1000);
-  const dd=Math.floor(totalSecs/86400);
-  const hh=Math.floor((totalSecs%86400)/3600);
-  const mm=Math.floor((totalSecs%3600)/60);
-  const ss=totalSecs%60;
-
+  box.style.display='flex';label.textContent='Deadline: '+next.name;
+  const totalSecs=Math.floor(diffMs/1000);const dd=Math.floor(totalSecs/86400);const hh=Math.floor((totalSecs%86400)/3600);const mm=Math.floor((totalSecs%3600)/60);const ss=totalSecs%60;
   let display='';
   if(dd>0) display=dd+'d '+String(hh).padStart(2,'0')+'h '+String(mm).padStart(2,'0')+'m';
   else if(hh>0) display=String(hh).padStart(2,'0')+'h '+String(mm).padStart(2,'0')+'m '+String(ss).padStart(2,'0')+'s';
   else display=String(mm).padStart(2,'0')+'m '+String(ss).padStart(2,'0')+'s';
-
   timeEl.textContent=display;
   timeEl.className='countdown-time'+(dd===0&&hh<2?' urgent':'');
 }
