@@ -100,6 +100,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .countdown-time{font-size:18px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--blue)}
 .countdown-time.urgent{color:var(--amber)}
 .countdown-time.overdue{color:#DC2626}
+.gantt-empty{padding:40px 24px;text-align:center;font-size:13px;color:var(--text2);line-height:1.8}
 </style>
 </head>
 <body>
@@ -308,7 +309,6 @@ function sw(name){
   if(name==='progress')renderProgress();
 }
 
-// Today view: show a task name only once even if it has multiple segments covering today
 function getTodayTasks(){
   const seen=new Set();
   return tasks.filter(t=>{
@@ -342,18 +342,36 @@ function renderToday(){
 }
 
 async function toggleTask(id,done){
-  setSyncStatus('syncing');tasks=tasks.map(t=>t.id===id?{...t,done}:t);renderToday();
-  await db.from('tasks').update({done}).eq('id',id);setSyncStatus('online');
+  setSyncStatus('syncing');
+  tasks=tasks.map(t=>t.id===id?{...t,done}:t);
+  renderToday();
+  await db.from('tasks').update({done}).eq('id',id);
+  setSyncStatus('online');
+  // Live-update Gantt if it's open
+  const ganttPanel=document.getElementById('panel-gantt');
+  if(ganttPanel.classList.contains('active')){
+    renderGantt(document.getElementById('gantt-filter').value);
+  }
 }
 
-// ── GANTT — same name = one row, multiple separate bar segments ───────────────
+// ── GANTT — only shows tasks where done === true ──────────────────────────────
 function renderGantt(cat){
   const s=new Date('2026-01-01'),e=new Date('2026-12-31');
   const days=[];
   for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1))days.push(d.toISOString().split('T')[0]);
 
-  const filtered=cat==='all'?tasks:tasks.filter(t=>t.cat===cat);
+  // Filter by category first, then keep only checked (done) tasks
+  const catFiltered=cat==='all'?tasks:tasks.filter(t=>t.cat===cat);
+  const filtered=catFiltered.filter(t=>t.done);
+
   const mNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  if(!filtered.length){
+    const catLabel=cat==='all'?'yet':'in '+cat+' yet';
+    document.getElementById('gantt-wrap').innerHTML=
+      `<div class="gantt-empty">No completed tasks ${catLabel}.<br><span style="font-size:12px;opacity:.65">Check off tasks in the Today tab — they'll appear here.</span></div>`;
+    return;
+  }
 
   let mSpans={};
   days.forEach(ds=>{const m=parseInt(ds.split('-')[1])-1;mSpans[m]=(mSpans[m]||0)+1;});
@@ -369,20 +387,18 @@ function renderGantt(cat){
   });
   h+='</tr></thead><tbody>';
 
-  // Group by category, then within each category group rows by task name
   const catOrder=Object.keys(CATS);
   const byCat={};
   filtered.forEach(t=>{(byCat[t.cat]=byCat[t.cat]||[]).push(t);});
 
-  // Render in category order, then any extra cats not in CATS
   const catsToRender=[...catOrder.filter(c=>byCat[c]),...Object.keys(byCat).filter(c=>!catOrder.includes(c))];
 
-  catsToRender.forEach(cat=>{
-    const catTasks=byCat[cat];if(!catTasks)return;
-    const color=CATS[cat]||CATS.Personal;
-    h+=`<tr><td colspan="${days.length+1}" style="padding:4px 10px;font-size:10px;font-weight:600;color:${color};background:var(--bg2);border-bottom:.5px solid var(--bd);text-transform:uppercase;letter-spacing:.5px">${cat}</td></tr>`;
+  catsToRender.forEach(currentCat=>{
+    const catTasks=byCat[currentCat];if(!catTasks)return;
+    const color=CATS[currentCat]||CATS.Personal;
+    h+=`<tr><td colspan="${days.length+1}" style="padding:4px 10px;font-size:10px;font-weight:600;color:${color};background:var(--bg2);border-bottom:.5px solid var(--bd);text-transform:uppercase;letter-spacing:.5px">${currentCat}</td></tr>`;
 
-    // Group tasks by name (case-insensitive), preserving insertion order
+    // Group by name so duplicate-named tasks still merge into one row
     const nameOrder=[];
     const byName={};
     catTasks.forEach(t=>{
@@ -393,18 +409,14 @@ function renderGantt(cat){
 
     nameOrder.forEach(key=>{
       const segments=byName[key];
-      const rep=segments[0]; // representative for label/done display
-      const allDone=segments.every(t=>t.done);
+      const rep=segments[0];
 
       h+=`<tr>`;
-      h+=`<td title="${rep.name}">${allDone?'&#10003; ':''}<span style="${allDone?'text-decoration:line-through;opacity:.5':''}">${rep.name}</span></td>`;
+      h+=`<td title="${rep.name}">&#10003; <span style="text-decoration:line-through;opacity:.5">${rep.name}</span></td>`;
 
       days.forEach(ds=>{
         const isToday=ds===todayStr;
         h+=`<td class="gcell${isToday?' gtoday':''}">`;
-
-        // Check if any segment covers this day — render it, gaps stay empty
-        let hit=false;
         for(const t of segments){
           if(ds>=t.start_date&&ds<=t.end_date){
             const isMile=t.start_date===t.end_date;
@@ -414,13 +426,11 @@ function renderGantt(cat){
               const isFirst=ds===t.start_date;
               const isLast=ds===t.end_date;
               const br=isFirst&&isLast?'3px':isFirst?'3px 0 0 3px':isLast?'0 3px 3px 0':'0';
-              h+=`<div class="gbar" style="background:${color};opacity:${allDone?.4:.82};border-radius:${br}"></div>`;
+              h+=`<div class="gbar" style="background:${color};opacity:.4;border-radius:${br}"></div>`;
             }
-            hit=true;
             break;
           }
         }
-        // No segment covers this day — gap, cell left blank
         h+='</td>';
       });
       h+='</tr>';
@@ -437,7 +447,6 @@ function jumpToday(){
   ths.forEach(th=>{if(th.style.fontWeight==='700')wrap.scrollLeft=Math.max(0,th.offsetLeft-200);});
 }
 
-// ── ADD TASK — always inserts fresh; Gantt groups same names visually ─────────
 async function addTask(){
   const name=document.getElementById('f-name').value.trim();
   if(!name){showNotif('Missing field','Please enter a task name.');return;}
