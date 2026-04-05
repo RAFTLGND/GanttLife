@@ -171,6 +171,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <option value="Learning">Learning</option>
           <option value="Health">Health</option>
           <option value="Personal">Personal</option>
+          <option value="Others">Others</option>
         </select>
         <button class="btn" onclick="jumpToday()">Jump to today</button>
       </div>
@@ -181,7 +182,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="form-card">
         <div class="frow"><label class="flabel">Task name</label><input class="finput" id="f-name" placeholder="e.g. Implement EKF algorithm"></div>
         <div class="frow"><label class="flabel">Category</label>
-          <select class="fsel" id="f-cat"><option>Work</option><option>Project</option><option>School</option><option>Career</option><option>Learning</option><option>Health</option><option>Personal</option></select>
+          <select class="fsel" id="f-cat"><option>Work</option><option>Project</option><option>School</option><option>Career</option><option>Learning</option><option>Health</option><option>Personal</option><option>Others</option></select>
         </div>
         <div class="frow2">
           <div><label class="flabel">Start date</label><input class="finput" type="date" id="f-start"></div>
@@ -220,7 +221,7 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const{createClient}=supabase;
 const db=createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const CATS={Work:'#3B82F6',Project:'#8B5CF6',School:'#EC4899',Career:'#F59E0B',Learning:'#14B8A6',Health:'#10B981',Personal:'#6B7280'};
+const CATS={Work:'#3B82F6',Project:'#8B5CF6',School:'#EC4899',Career:'#F59E0B',Learning:'#14B8A6',Health:'#10B981',Personal:'#6B7280',Others:'#A78BFA'};
 const todayDate=new Date();
 const todayStr=todayDate.toISOString().split('T')[0];
 let tasks=[];
@@ -334,7 +335,7 @@ function renderToday(){
   const list=document.getElementById('task-list');list.innerHTML='';
   if(!today.length){list.innerHTML='<div class="empty">No tasks today — add some!</div>';return;}
   today.forEach(t=>{
-    const color=CATS[t.cat]||CATS.Personal;const pc=t.prio==='high'?'ph':t.prio==='med'?'pm':'pl';
+    const color=CATS[t.cat]||CATS.Others;const pc=t.prio==='high'?'ph':t.prio==='med'?'pm':'pl';
     const el=document.createElement('div');el.className='task-item'+(t.done?' done':'');
     el.innerHTML=`<div class="check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="task-info"><div class="task-name">${t.name}</div><div class="task-sub"><span class="dot" style="background:${color}"></span>${t.cat}</div></div><span class="prio-badge ${pc}">${t.prio}</span>`;
     el.onclick=()=>toggleTask(t.id,!t.done);list.appendChild(el);
@@ -395,7 +396,7 @@ function renderGantt(cat){
 
   catsToRender.forEach(currentCat=>{
     const catTasks=byCat[currentCat];if(!catTasks)return;
-    const color=CATS[currentCat]||CATS.Personal;
+    const color=CATS[currentCat]||CATS.Others;
     h+=`<tr><td colspan="${days.length+1}" style="padding:4px 10px;font-size:10px;font-weight:600;color:${color};background:var(--bg2);border-bottom:.5px solid var(--bd);text-transform:uppercase;letter-spacing:.5px">${currentCat}</td></tr>`;
 
     // Group by name so duplicate-named tasks still merge into one row
@@ -476,12 +477,12 @@ async function addTask(){
 async function aiSuggest(){
   const box=document.getElementById('sug-area');box.innerHTML='<div style="font-size:13px;color:var(--text2);padding:10px 0">Generating AI suggestions...</div>';
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:'You are a productivity coach for an engineering student interning at Bertrandt doing BMS calibration for Renault, building a SoC Estimator with EKF/UKF in Python. Suggest 3 specific actionable tasks for this week. Respond ONLY with a JSON array: [{"name":"...","cat":"Work|Project|Health|Learning|School|Career","prio":"high|med|low"}]. No markdown.'}]})});
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:'You are a productivity coach for an engineering student interning at Bertrandt doing BMS calibration for Renault, building a SoC Estimator with EKF/UKF in Python. Suggest 3 specific actionable tasks for this week. Respond ONLY with a JSON array: [{"name":"...","cat":"Work|Project|Health|Learning|School|Career|Others","prio":"high|med|low"}]. No markdown.'}]})});
     const data=await r.json();
     const sugs=JSON.parse((data.content?.[0]?.text||'[]').replace(/```json|```/g,'').trim());
     box.innerHTML='<div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px">AI suggestions — click to add</div>';
     sugs.forEach(s=>{
-      const color=CATS[s.cat]||CATS.Personal;
+      const color=CATS[s.cat]||CATS.Others;
       const el=document.createElement('div');el.className='sug-item';
       el.innerHTML=`<span class="dot" style="background:${color}"></span><span style="flex:1">${s.name}</span><span style="font-size:11px;color:var(--text2)">${s.cat}</span>`;
       el.onclick=async()=>{
@@ -531,7 +532,7 @@ function focusMode(){
   if(ov.classList.contains('open')){
     const fl=document.getElementById('focus-list');fl.innerHTML='';
     getTodayTasks().forEach(t=>{
-      const color=CATS[t.cat]||CATS.Personal;
+      const color=CATS[t.cat]||CATS.Others;
       const el=document.createElement('div');el.className='task-item'+(t.done?' done':'');el.style.marginBottom='8px';
       el.innerHTML=`<div class="check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="task-info"><div class="task-name" style="font-size:15px">${t.name}</div><div class="task-sub"><span class="dot" style="background:${color}"></span>${t.cat}</div></div>`;
       el.onclick=async()=>{await toggleTask(t.id,!t.done);focusMode();setTimeout(focusMode,80);};
@@ -556,8 +557,9 @@ async function downloadExcel(){
     Learning:{hbg:'0F6E56',bar:'1DA875',label:'Learning'},
     Health: {hbg:'993556',bar:'D4537E',label:'Health & Fitness'},
     Personal:{hbg:'444441',bar:'888880',label:'Personal'},
+    Others: {hbg:'6D4AC5',bar:'A78BFA',label:'Others'},
   };
-  const CAT_ORDER=['Project','Work','School','Career','Learning','Health','Personal'];
+  const CAT_ORDER=['Project','Work','School','Career','Learning','Health','Personal','Others'];
   const MONTHS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   const MDAYS=[31,28,31,30,31,30,31,31,30,31,30,31];
   const year=2026;
@@ -586,11 +588,11 @@ async function downloadExcel(){
   ['Task','Priority','Duration'].forEach((v,i)=>{const c=ws.getCell(4,i+1);c.value=v;c.font=font(true,8,'666660');c.fill=f('F1EFE8');c.alignment=aln(i===0?'left':'center');});
   for(let i=0;i<allDays.length;i++){const{d,dow,date}=allDays[i];const isWe=dow===0||dow===6;const isTod=date===todayISO;const c=ws.getCell(4,i+4);c.value=String(d);c.font=font(isTod,7,isTod?'3785DE':'888880');c.fill=f(isTod?'FADADD':isWe?'EDECEA':'F1EFE8');c.alignment=aln('center');}
   const grouped={};for(const cat of CAT_ORDER) grouped[cat]=[];
-  for(const t of tasks){const c=t.cat||'Personal';if(grouped[c])grouped[c].push(t);else grouped['Personal'].push(t);}
+  for(const t of tasks){const c=t.cat||'Others';if(grouped[c])grouped[c].push(t);else grouped['Others'].push(t);}
   let row=5;
   for(const cat of CAT_ORDER){
     const ctasks=grouped[cat];if(!ctasks||!ctasks.length)continue;
-    const cfg=CAT_CFG[cat]||CAT_CFG.Personal;
+    const cfg=CAT_CFG[cat]||CAT_CFG.Others;
     ws.getRow(row).height=15;ws.mergeCells(row,1,row,3);
     const ch=ws.getCell(row,1);ch.value='  > '+cfg.label;ch.font=font(true,9,'FFFFFF');ch.fill=f(cfg.hbg);ch.alignment=aln('left');
     for(let i=0;i<allDays.length;i++){const{dow}=allDays[i];ws.getCell(row,i+4).fill=f(dow===0||dow===6?'EDECEA':cfg.hbg);}
