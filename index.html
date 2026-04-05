@@ -19,12 +19,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
 .sync-dot.offline{background:var(--amber)}.sync-dot.syncing{background:var(--blue);animation:blink .8s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.tabs{display:flex;gap:2px;background:var(--bg2);border-radius:var(--r);padding:3px}
+.tabs{display:flex;gap:2px;background:var(--bg2);border-radius:var(--r);padding:3px;flex-wrap:wrap}
 .tab{padding:5px 13px;border-radius:6px;font-size:13px;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:all .15s;font-family:inherit}
 .tab.active{background:var(--bg);color:var(--text);border:.5px solid var(--bd);font-weight:500}
 .spacer{flex:1}
 .btn{padding:6px 13px;border-radius:var(--r);font-size:13px;cursor:pointer;border:.5px solid var(--bd2);background:transparent;color:var(--text);font-family:inherit;transition:background .15s;display:inline-flex;align-items:center;gap:6px}
 .btn:hover{background:var(--bg2)}.btn.primary{background:var(--text);color:var(--bg);border-color:transparent}.btn.primary:hover{opacity:.88}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.danger{color:#DC2626;border-color:rgba(220,38,38,.3)}.btn.danger:hover{background:#FEE2E2}
 .content{flex:1}.panel{padding:18px;display:none}.panel.active{display:block}
 .section-label{font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
 .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
@@ -34,7 +35,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .c-blue{color:var(--blue)}.c-green{color:var(--green)}.c-amber{color:var(--amber)}
 .prog-bar{height:4px;background:var(--bg2);border-radius:2px;margin-bottom:20px;overflow:hidden}
 .prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .4s}
-.task-list{display:flex;flex-direction:column;gap:5px;margin-bottom:20px}
+.task-list{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
 .task-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg);border:.5px solid var(--bd);border-radius:var(--r);cursor:pointer;transition:border-color .15s}
 .task-item:hover{border-color:var(--bd2)}.task-item.done{opacity:.4}.task-item.done .task-name{text-decoration:line-through}
 .check{width:18px;height:18px;border:1.5px solid var(--bd2);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
@@ -62,7 +63,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .gantt-tbl td{padding:0;border-bottom:.5px solid var(--bd)}
 .gantt-tbl td:first-child{padding:0 10px;font-size:12px;white-space:nowrap;position:sticky;left:0;background:var(--bg);z-index:1;border-right:.5px solid var(--bd);max-width:165px;overflow:hidden;text-overflow:ellipsis;line-height:36px;color:var(--text)}
 .gantt-tbl tr:last-child td{border-bottom:none}
-.gcell{width:22px;min-width:22px;height:36px}.gbar{height:18px;margin:9px 0;border-radius:3px}.gtoday{background:rgba(59,130,246,.12)}.gmile{text-align:center;line-height:36px;font-size:12px}
+.gcell{width:22px;min-width:22px;height:36px;position:relative}
+.gbar{height:18px;margin:9px 0;border-radius:3px;position:relative;cursor:grab;user-select:none}
+.gbar:active{cursor:grabbing}
+.gbar-edge{position:absolute;top:0;width:7px;height:100%;cursor:ew-resize;z-index:2;opacity:0}
+.gbar-edge.left{left:0}.gbar-edge.right{right:0}
+.gbar:hover .gbar-edge{opacity:1;background:rgba(255,255,255,.35)}
+.gtoday{background:rgba(59,130,246,.12)}.gmile{text-align:center;line-height:36px;font-size:12px}
 .form-card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:18px;max-width:520px}
 .flabel{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px;display:block}.frow{margin-bottom:13px}
 .finput,.fsel,.ftarea{width:100%;padding:8px 10px;border:.5px solid var(--bd2);border-radius:var(--r);font-size:13px;background:var(--bg2);color:var(--text);outline:none;font-family:inherit}
@@ -98,9 +105,58 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .countdown-info{flex:1;min-width:0}
 .countdown-label{font-size:11px;color:var(--text2);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .countdown-time{font-size:18px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--blue)}
-.countdown-time.urgent{color:var(--amber)}
-.countdown-time.overdue{color:#DC2626}
+.countdown-time.urgent{color:var(--amber)}.countdown-time.overdue{color:#DC2626}
 .gantt-empty{padding:40px 24px;text-align:center;font-size:13px;color:var(--text2);line-height:1.8}
+
+/* QUICK ADD */
+.quick-add-bar{display:flex;gap:8px;margin-bottom:16px;align-items:center;background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:10px 12px;flex-wrap:wrap}
+.quick-add-bar input,.quick-add-bar select{padding:6px 9px;border:.5px solid var(--bd2);border-radius:var(--r);font-size:13px;background:var(--bg2);color:var(--text);outline:none;font-family:inherit}
+.quick-add-bar input:focus,.quick-add-bar select:focus{border-color:var(--blue)}
+#qa-name{flex:1;min-width:120px}
+
+/* MODAL */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--bg);border:.5px solid var(--bd2);border-radius:var(--rl);padding:22px;width:min(480px,94vw);max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.2);animation:modalIn .18s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-title{font-size:15px;font-weight:600}
+.modal-close{width:28px;height:28px;border-radius:6px;border:.5px solid var(--bd);background:transparent;cursor:pointer;font-size:18px;color:var(--text2);display:flex;align-items:center;justify-content:center;line-height:1}
+.modal-close:hover{background:var(--bg2)}
+.modal-footer{display:flex;gap:8px;margin-top:18px;justify-content:space-between;align-items:center}
+
+/* RECURRENCE */
+.recur-opts{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.recur-chip{padding:4px 11px;border-radius:99px;font-size:12px;border:.5px solid var(--bd2);cursor:pointer;background:var(--bg2);color:var(--text2);transition:all .15s;user-select:none}
+.recur-chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.recur-detail{margin-top:9px;font-size:12px;color:var(--text2)}
+.recur-detail input[type=number]{width:52px;padding:4px 7px;border:.5px solid var(--bd2);border-radius:var(--r);font-size:12px;background:var(--bg2);color:var(--text);outline:none;margin:0 5px;font-family:inherit}
+.day-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.day-chip{width:32px;height:32px;border-radius:50%;font-size:11px;font-weight:500;border:.5px solid var(--bd2);cursor:pointer;background:var(--bg2);color:var(--text2);display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none}
+.day-chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* EOD */
+.eod-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center}
+.eod-ov.open{display:flex}
+.eod-card{background:var(--bg);border-radius:var(--rl);padding:28px;width:min(520px,94vw);max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.22);animation:modalIn .2s ease}
+.eod-title{font-size:19px;font-weight:600;margin-bottom:3px}
+.eod-sub{font-size:13px;color:var(--text2);margin-bottom:18px}
+.eod-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.eod-stat{background:var(--bg2);border-radius:var(--r);padding:12px;text-align:center}
+.eod-stat-val{font-size:26px;font-weight:600}.eod-stat-lbl{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* INTEGRATIONS */
+.integrations-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+@media(max-width:540px){.integrations-grid{grid-template-columns:1fr}}
+.integration-card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:15px}
+.integration-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.integration-icon{font-size:18px}
+.integration-name{font-size:13px;font-weight:500;flex:1}
+.status-badge{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--bg2);color:var(--text2)}
+.status-badge.connected{background:#D1FAE5;color:#065F46}
+.status-badge.enabled{background:#DBEAFE;color:#1E40AF}
+.integration-body{font-size:12px;color:var(--text2);margin-bottom:11px;line-height:1.55}
+.integration-actions{display:flex;gap:6px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -113,6 +169,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="tab" onclick="sw('gantt')">Gantt</button>
       <button class="tab" onclick="sw('add')">Add task</button>
       <button class="tab" onclick="sw('progress')">Progress</button>
+      <button class="tab" onclick="sw('integrations')">Integrations</button>
     </div>
     <div class="spacer"></div>
     <button class="btn" onclick="focusMode()">Focus</button>
@@ -120,6 +177,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="btn primary" onclick="showNotif('Morning briefing',getTodayTasks().length+' tasks today. Let\'s go!')">Notify</button>
   </div>
   <div class="content">
+
     <!-- TODAY -->
     <div class="panel active" id="panel-today">
       <div style="margin-bottom:14px">
@@ -147,6 +205,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="metric"><div class="metric-label">Done %</div><div class="metric-val" id="m-pct">—</div></div>
       </div>
       <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+
+      <!-- Quick-add -->
+      <div class="quick-add-bar">
+        <input id="qa-name" placeholder="Quick add a task…" onkeydown="if(event.key==='Enter')quickAdd()">
+        <select id="qa-cat">
+          <option>Work</option><option>Project</option><option>School</option><option>Career</option>
+          <option>Learning</option><option>Health</option><option>Personal</option><option>Others</option>
+        </select>
+        <input id="qa-end" type="date" style="width:130px">
+        <button class="btn primary" onclick="quickAdd()">+ Add</button>
+      </div>
+
       <div class="section-label">Today's tasks</div>
       <div class="task-list" id="task-list"><div class="loading"><div class="spinner"></div>Loading from Supabase...</div></div>
       <div class="section-label">AI assistant</div>
@@ -159,30 +229,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
       </div>
     </div>
+
     <!-- GANTT -->
     <div class="panel" id="panel-gantt">
       <div class="gantt-toolbar">
         <select class="sel" id="gantt-filter" onchange="renderGantt(this.value)">
           <option value="all">All categories</option>
-          <option value="Work">Work</option>
-          <option value="Project">Project</option>
-          <option value="School">School</option>
-          <option value="Career">Career</option>
-          <option value="Learning">Learning</option>
-          <option value="Health">Health</option>
-          <option value="Personal">Personal</option>
-          <option value="Others">Others</option>
+          <option value="Work">Work</option><option value="Project">Project</option>
+          <option value="School">School</option><option value="Career">Career</option>
+          <option value="Learning">Learning</option><option value="Health">Health</option>
+          <option value="Personal">Personal</option><option value="Others">Others</option>
         </select>
         <button class="btn" onclick="jumpToday()">Jump to today</button>
+        <span style="font-size:11px;color:var(--text3)">Drag bars to move · drag edges to resize</span>
       </div>
       <div class="gantt-wrap" id="gantt-wrap"><div class="loading"><div class="spinner"></div>Loading...</div></div>
     </div>
+
     <!-- ADD -->
     <div class="panel" id="panel-add">
       <div class="form-card">
         <div class="frow"><label class="flabel">Task name</label><input class="finput" id="f-name" placeholder="e.g. Implement EKF algorithm"></div>
         <div class="frow"><label class="flabel">Category</label>
-          <select class="fsel" id="f-cat"><option>Work</option><option>Project</option><option>School</option><option>Career</option><option>Learning</option><option>Health</option><option>Personal</option><option>Others</option></select>
+          <select class="fsel" id="f-cat">
+            <option>Work</option><option>Project</option><option>School</option><option>Career</option>
+            <option>Learning</option><option>Health</option><option>Personal</option><option>Others</option>
+          </select>
         </div>
         <div class="frow2">
           <div><label class="flabel">Start date</label><input class="finput" type="date" id="f-start"></div>
@@ -191,11 +263,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="frow"><label class="flabel">Priority</label>
           <select class="fsel" id="f-prio"><option value="high">High</option><option value="med" selected>Medium</option><option value="low">Low</option></select>
         </div>
+        <div class="frow">
+          <label class="flabel">Recurrence</label>
+          <div class="recur-opts" id="add-recur-opts">
+            <span class="recur-chip active" onclick="setRecur('add','none',this)">None</span>
+            <span class="recur-chip" onclick="setRecur('add','daily',this)">Daily</span>
+            <span class="recur-chip" onclick="setRecur('add','xweek',this)">N×/week</span>
+            <span class="recur-chip" onclick="setRecur('add','weekdays',this)">Specific days</span>
+            <span class="recur-chip" onclick="setRecur('add','interval',this)">Every N days</span>
+          </div>
+          <div id="add-recur-detail"></div>
+        </div>
         <div class="frow"><label class="flabel">Notes (optional)</label><textarea class="ftarea" id="f-notes" rows="2" placeholder="Any extra context..."></textarea></div>
         <div style="display:flex;gap:8px"><button class="btn primary" id="add-btn" onclick="addTask()">Add task</button><button class="btn" onclick="aiSuggest()">AI suggest ↗</button></div>
       </div>
       <div class="sug-area" id="sug-area"></div>
     </div>
+
     <!-- PROGRESS -->
     <div class="panel" id="panel-progress">
       <div class="streak-row"><div class="streak-num">7</div><div><div style="font-size:15px;font-weight:500">Day streak</div><div style="font-size:13px;color:var(--text2)">Keep it up!</div></div></div>
@@ -208,13 +292,127 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="btn" style="margin-top:10px" onclick="weeklyReview()">Generate review ↗</button>
       </div>
     </div>
+
+    <!-- INTEGRATIONS -->
+    <div class="panel" id="panel-integrations">
+      <div class="section-label">Connected services</div>
+      <div class="integrations-grid">
+        <div class="integration-card">
+          <div class="integration-hdr">
+            <span class="integration-icon">📅</span>
+            <span class="integration-name">Google Calendar</span>
+            <span class="status-badge" id="gcal-status">Not connected</span>
+          </div>
+          <div class="integration-body">Sync your tasks with Google Calendar. Export tasks as events or import upcoming GCal events as tasks.</div>
+          <div class="integration-actions">
+            <button class="btn" id="gcal-connect-btn" onclick="gcalConnect()">Connect GCal</button>
+            <button class="btn" id="gcal-export-btn" onclick="gcalExport()" disabled>↑ Export tasks</button>
+            <button class="btn" id="gcal-import-btn" onclick="gcalImport()" disabled>↓ Import events</button>
+          </div>
+        </div>
+        <div class="integration-card">
+          <div class="integration-hdr">
+            <span class="integration-icon">🔔</span>
+            <span class="integration-name">Push Notifications</span>
+            <span class="status-badge" id="push-status">Not enabled</span>
+          </div>
+          <div class="integration-body">Get deadline reminders and your daily morning briefing even when the tab is closed.</div>
+          <div class="integration-actions">
+            <button class="btn" id="push-enable-btn" onclick="enablePush()">Enable notifications</button>
+            <button class="btn" onclick="testPushNotif()">Send test</button>
+          </div>
+        </div>
+      </div>
+      <div class="section-label">Notification schedule</div>
+      <div class="form-card" style="max-width:100%">
+        <div class="frow2">
+          <div><label class="flabel">Morning briefing time</label><input class="finput" type="time" id="briefing-time" value="08:00"></div>
+          <div><label class="flabel">End-of-day review time</label><input class="finput" type="time" id="eod-time" value="22:30"></div>
+        </div>
+        <div class="frow">
+          <label class="flabel">Deadline warning (hours before)</label>
+          <select class="fsel" id="deadline-warn">
+            <option value="2">2 hours</option><option value="6">6 hours</option>
+            <option value="24" selected>24 hours</option><option value="48">48 hours</option>
+          </select>
+        </div>
+        <button class="btn primary" onclick="saveNotifSettings()">Save settings</button>
+      </div>
+    </div>
+
   </div>
 </div>
+
+<!-- TASK DETAIL MODAL -->
+<div class="modal-backdrop" id="task-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">Edit task</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="frow"><label class="flabel">Task name</label><input class="finput" id="m-name"></div>
+    <div class="frow"><label class="flabel">Category</label>
+      <select class="fsel" id="m-cat">
+        <option>Work</option><option>Project</option><option>School</option><option>Career</option>
+        <option>Learning</option><option>Health</option><option>Personal</option><option>Others</option>
+      </select>
+    </div>
+    <div class="frow2">
+      <div><label class="flabel">Start date</label><input class="finput" type="date" id="m-start"></div>
+      <div><label class="flabel">End date</label><input class="finput" type="date" id="m-end"></div>
+    </div>
+    <div class="frow"><label class="flabel">Priority</label>
+      <select class="fsel" id="m-prio"><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select>
+    </div>
+    <div class="frow">
+      <label class="flabel">Recurrence</label>
+      <div class="recur-opts" id="m-recur-opts">
+        <span class="recur-chip active" onclick="setRecur('modal','none',this)">None</span>
+        <span class="recur-chip" onclick="setRecur('modal','daily',this)">Daily</span>
+        <span class="recur-chip" onclick="setRecur('modal','xweek',this)">N×/week</span>
+        <span class="recur-chip" onclick="setRecur('modal','weekdays',this)">Specific days</span>
+        <span class="recur-chip" onclick="setRecur('modal','interval',this)">Every N days</span>
+      </div>
+      <div id="m-recur-detail"></div>
+    </div>
+    <div class="frow"><label class="flabel">Notes</label><textarea class="ftarea" id="m-notes" rows="3"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn danger" onclick="deleteTask()">Delete task</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="closeModal()">Cancel</button>
+        <button class="btn primary" onclick="saveModal()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EOD REVIEW -->
+<div class="eod-ov" id="eod-ov">
+  <div class="eod-card">
+    <div class="eod-title">🌙 End-of-day review</div>
+    <div class="eod-sub" id="eod-date-label"></div>
+    <div class="eod-stats">
+      <div class="eod-stat"><div class="eod-stat-val c-green" id="eod-done">—</div><div class="eod-stat-lbl">Completed</div></div>
+      <div class="eod-stat"><div class="eod-stat-val c-amber" id="eod-pending">—</div><div class="eod-stat-lbl">Pending</div></div>
+      <div class="eod-stat"><div class="eod-stat-val c-blue" id="eod-total">—</div><div class="eod-stat-lbl">Total today</div></div>
+    </div>
+    <div class="ai-box" style="margin-bottom:16px">
+      <div class="ai-header"><div class="ai-pulse"></div>AI daily reflection</div>
+      <div class="ai-output" id="eod-ai-out">Generating your reflection...</div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="closeEod()">Dismiss</button>
+      <button class="btn primary" onclick="closeEod();sw('today')">Plan tomorrow ↗</button>
+    </div>
+  </div>
+</div>
+
 <div class="notif" id="notif"><div class="notif-title" id="n-title"></div><div class="notif-body" id="n-body"></div></div>
 <div class="focus-ov" id="focus-ov">
   <div class="focus-hdr"><div class="focus-title">Focus mode — today</div><button class="btn" onclick="focusMode()">Exit</button></div>
   <div id="focus-list"></div>
 </div>
+
 <script>
 const SUPABASE_URL='https://rdpsfurixorsdvjwzmub.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkcHNmdXJpeG9yc2R2and6bXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTk0NDIsImV4cCI6MjA4OTY5NTQ0Mn0.z-LDnc-IztR06uU87mGsYIY-W1mV0SuFq0t_EEs0zg4';
@@ -225,58 +423,73 @@ const CATS={Work:'#3B82F6',Project:'#8B5CF6',School:'#EC4899',Career:'#F59E0B',L
 const todayDate=new Date();
 const todayStr=todayDate.toISOString().split('T')[0];
 let tasks=[];
+let modalTaskId=null;
+
+// Recur state for add form and modal
+let RS={add:{type:'none',n:1,days:[]},modal:{type:'none',n:1,days:[]}};
+
+// Notif settings
+let notifSettings={briefingTime:'08:00',eodTime:'22:30',deadlineWarnHours:24};
+try{const s=localStorage.getItem('lg-notif');if(s)notifSettings={...notifSettings,...JSON.parse(s)};}catch(e){}
+let eodShownDate='';
+try{eodShownDate=localStorage.getItem('lg-eod-shown')||'';}catch(e){}
 
 const SEED=[
-  {name:"Literature review — KF & BMS SoC",cat:"Project",start_date:"2026-03-23",end_date:"2026-03-30",prio:"high",done:false},
-  {name:"Choose dataset / battery model",cat:"Project",start_date:"2026-03-28",end_date:"2026-04-05",prio:"high",done:false},
-  {name:"Implement EKF in Python",cat:"Project",start_date:"2026-04-05",end_date:"2026-04-19",prio:"high",done:false},
-  {name:"Simulate & validate vs ground truth",cat:"Project",start_date:"2026-04-19",end_date:"2026-04-30",prio:"high",done:false},
-  {name:"Add UKF / compare filters",cat:"Project",start_date:"2026-04-28",end_date:"2026-05-10",prio:"high",done:false},
-  {name:"Add bidirectional DC-DC sim (bonus)",cat:"Project",start_date:"2026-05-05",end_date:"2026-05-16",prio:"med",done:false},
-  {name:"Write-up, GitHub README, document",cat:"Project",start_date:"2026-05-14",end_date:"2026-05-23",prio:"high",done:false},
-  {name:"Define project scope & topology",cat:"Project",start_date:"2026-06-01",end_date:"2026-06-14",prio:"med",done:false},
-  {name:"LTspice simulation — buck/boost",cat:"Project",start_date:"2026-06-14",end_date:"2026-07-05",prio:"med",done:false},
-  {name:"PCB design in KiCad",cat:"Project",start_date:"2026-07-05",end_date:"2026-07-31",prio:"high",done:false},
-  {name:"Order components & board fabrication",cat:"Project",start_date:"2026-07-28",end_date:"2026-08-10",prio:"med",done:false},
-  {name:"Bring-up, test & measure efficiency",cat:"Project",start_date:"2026-08-10",end_date:"2026-09-05",prio:"high",done:false},
-  {name:"Document & publish on GitHub",cat:"Project",start_date:"2026-09-05",end_date:"2026-09-20",prio:"med",done:false},
-  {name:"BMS calibration tasks",cat:"Work",start_date:"2026-01-01",end_date:"2026-08-31",prio:"high",done:false},
-  {name:"Calibration tool dev (2-3x/week)",cat:"Work",start_date:"2026-01-01",end_date:"2026-08-31",prio:"med",done:false},
-  {name:"Monthly review meeting - Jan",cat:"Work",start_date:"2026-01-13",end_date:"2026-01-13",prio:"med",done:false},
-  {name:"Monthly review meeting - Feb",cat:"Work",start_date:"2026-02-10",end_date:"2026-02-10",prio:"med",done:false},
-  {name:"Monthly review meeting - Mar",cat:"Work",start_date:"2026-03-10",end_date:"2026-03-10",prio:"med",done:false},
-  {name:"Monthly review meeting - Apr",cat:"Work",start_date:"2026-04-14",end_date:"2026-04-14",prio:"med",done:false},
-  {name:"Monthly review meeting - May",cat:"Work",start_date:"2026-05-12",end_date:"2026-05-12",prio:"med",done:false},
-  {name:"Monthly review meeting - Jun",cat:"Work",start_date:"2026-06-09",end_date:"2026-06-09",prio:"med",done:false},
-  {name:"Monthly review meeting - Jul",cat:"Work",start_date:"2026-07-14",end_date:"2026-07-14",prio:"med",done:false},
-  {name:"End of internship / final handover",cat:"Work",start_date:"2026-08-28",end_date:"2026-08-31",prio:"high",done:false},
-  {name:"Internship presentation prep (1x/wk)",cat:"School",start_date:"2026-01-01",end_date:"2026-08-31",prio:"med",done:false},
-  {name:"Internship report writing",cat:"School",start_date:"2026-04-01",end_date:"2026-08-15",prio:"high",done:false},
-  {name:"Apr presentation rehearsal",cat:"School",start_date:"2026-04-09",end_date:"2026-04-13",prio:"med",done:false},
-  {name:"May presentation rehearsal",cat:"School",start_date:"2026-05-06",end_date:"2026-05-11",prio:"med",done:false},
-  {name:"Final report submission",cat:"School",start_date:"2026-08-15",end_date:"2026-08-20",prio:"high",done:false},
-  {name:"Final oral presentation prep",cat:"School",start_date:"2026-08-20",end_date:"2026-09-05",prio:"high",done:false},
-  {name:"Oral presentation / defense",cat:"School",start_date:"2026-09-07",end_date:"2026-09-07",prio:"high",done:false},
-  {name:"CV & LinkedIn overhaul",cat:"Career",start_date:"2026-09-01",end_date:"2026-09-15",prio:"high",done:false},
-  {name:"Target company research",cat:"Career",start_date:"2026-09-10",end_date:"2026-09-30",prio:"med",done:false},
-  {name:"Applications - Tier 1 automotive",cat:"Career",start_date:"2026-09-15",end_date:"2026-11-15",prio:"high",done:false},
-  {name:"Technical interview prep",cat:"Career",start_date:"2026-09-20",end_date:"2026-11-30",prio:"high",done:false},
-  {name:"Networking events & LinkedIn outreach",cat:"Career",start_date:"2026-10-01",end_date:"2026-12-15",prio:"med",done:false},
-  {name:"Offers & decision",cat:"Career",start_date:"2026-11-15",end_date:"2026-12-31",prio:"high",done:false},
-  {name:"Python: NumPy/SciPy for KF",cat:"Learning",start_date:"2026-03-23",end_date:"2026-04-05",prio:"high",done:false},
-  {name:"Power electronics - Erickson ch.1-4",cat:"Learning",start_date:"2026-03-23",end_date:"2026-04-20",prio:"med",done:false},
-  {name:"LTspice - simulate buck converter",cat:"Learning",start_date:"2026-04-06",end_date:"2026-04-25",prio:"med",done:false},
-  {name:"FOC / SVPWM theory",cat:"Learning",start_date:"2026-04-21",end_date:"2026-05-15",prio:"med",done:false},
-  {name:"AUTOSAR fundamentals (self-study)",cat:"Learning",start_date:"2026-05-26",end_date:"2026-07-20",prio:"med",done:false},
-  {name:"ISO 26262 Part 6 - reading",cat:"Learning",start_date:"2026-06-01",end_date:"2026-07-31",prio:"low",done:false},
-  {name:"Embedded C / RTOS (FreeRTOS)",cat:"Learning",start_date:"2026-07-21",end_date:"2026-09-30",prio:"med",done:false},
-  {name:"ML for engineering (time-series)",cat:"Learning",start_date:"2026-10-01",end_date:"2026-12-01",prio:"med",done:false},
-  {name:"Gym sessions (3x/week)",cat:"Health",start_date:"2026-01-01",end_date:"2026-12-31",prio:"med",done:false},
-  {name:"Sleep & recovery habit",cat:"Health",start_date:"2026-01-01",end_date:"2026-12-31",prio:"high",done:false},
-  {name:"Endurance goal (run 5K to 10K)",cat:"Health",start_date:"2026-06-01",end_date:"2026-09-30",prio:"low",done:false}
+  {name:"Literature review — KF & BMS SoC",cat:"Project",start_date:"2026-03-23",end_date:"2026-03-30",prio:"high",done:false,recur:"none"},
+  {name:"Choose dataset / battery model",cat:"Project",start_date:"2026-03-28",end_date:"2026-04-05",prio:"high",done:false,recur:"none"},
+  {name:"Implement EKF in Python",cat:"Project",start_date:"2026-04-05",end_date:"2026-04-19",prio:"high",done:false,recur:"none"},
+  {name:"Simulate & validate vs ground truth",cat:"Project",start_date:"2026-04-19",end_date:"2026-04-30",prio:"high",done:false,recur:"none"},
+  {name:"Add UKF / compare filters",cat:"Project",start_date:"2026-04-28",end_date:"2026-05-10",prio:"high",done:false,recur:"none"},
+  {name:"Add bidirectional DC-DC sim (bonus)",cat:"Project",start_date:"2026-05-05",end_date:"2026-05-16",prio:"med",done:false,recur:"none"},
+  {name:"Write-up, GitHub README, document",cat:"Project",start_date:"2026-05-14",end_date:"2026-05-23",prio:"high",done:false,recur:"none"},
+  {name:"Define project scope & topology",cat:"Project",start_date:"2026-06-01",end_date:"2026-06-14",prio:"med",done:false,recur:"none"},
+  {name:"LTspice simulation — buck/boost",cat:"Project",start_date:"2026-06-14",end_date:"2026-07-05",prio:"med",done:false,recur:"none"},
+  {name:"PCB design in KiCad",cat:"Project",start_date:"2026-07-05",end_date:"2026-07-31",prio:"high",done:false,recur:"none"},
+  {name:"Order components & board fabrication",cat:"Project",start_date:"2026-07-28",end_date:"2026-08-10",prio:"med",done:false,recur:"none"},
+  {name:"Bring-up, test & measure efficiency",cat:"Project",start_date:"2026-08-10",end_date:"2026-09-05",prio:"high",done:false,recur:"none"},
+  {name:"Document & publish on GitHub",cat:"Project",start_date:"2026-09-05",end_date:"2026-09-20",prio:"med",done:false,recur:"none"},
+  {name:"BMS calibration tasks",cat:"Work",start_date:"2026-01-01",end_date:"2026-08-31",prio:"high",done:false,recur:"none"},
+  {name:"Calibration tool dev (2-3x/week)",cat:"Work",start_date:"2026-01-01",end_date:"2026-08-31",prio:"med",done:false,recur:"xweek:3"},
+  {name:"Monthly review meeting - Jan",cat:"Work",start_date:"2026-01-13",end_date:"2026-01-13",prio:"med",done:false,recur:"none"},
+  {name:"Monthly review meeting - Feb",cat:"Work",start_date:"2026-02-10",end_date:"2026-02-10",prio:"med",done:false,recur:"none"},
+  {name:"Monthly review meeting - Mar",cat:"Work",start_date:"2026-03-10",end_date:"2026-03-10",prio:"med",done:false,recur:"none"},
+  {name:"Monthly review meeting - Apr",cat:"Work",start_date:"2026-04-14",end_date:"2026-04-14",prio:"med",done:false,recur:"none"},
+  {name:"Monthly review meeting - May",cat:"Work",start_date:"2026-05-12",end_date:"2026-05-12",prio:"med",done:false,recur:"none"},
+  {name:"Monthly review meeting - Jun",cat:"Work",start_date:"2026-06-09",end_date:"2026-06-09",prio:"med",done:false,recur:"none"},
+  {name:"Monthly review meeting - Jul",cat:"Work",start_date:"2026-07-14",end_date:"2026-07-14",prio:"med",done:false,recur:"none"},
+  {name:"End of internship / final handover",cat:"Work",start_date:"2026-08-28",end_date:"2026-08-31",prio:"high",done:false,recur:"none"},
+  {name:"Internship presentation prep (1x/wk)",cat:"School",start_date:"2026-01-01",end_date:"2026-08-31",prio:"med",done:false,recur:"weekdays:1"},
+  {name:"Internship report writing",cat:"School",start_date:"2026-04-01",end_date:"2026-08-15",prio:"high",done:false,recur:"none"},
+  {name:"Apr presentation rehearsal",cat:"School",start_date:"2026-04-09",end_date:"2026-04-13",prio:"med",done:false,recur:"none"},
+  {name:"May presentation rehearsal",cat:"School",start_date:"2026-05-06",end_date:"2026-05-11",prio:"med",done:false,recur:"none"},
+  {name:"Final report submission",cat:"School",start_date:"2026-08-15",end_date:"2026-08-20",prio:"high",done:false,recur:"none"},
+  {name:"Final oral presentation prep",cat:"School",start_date:"2026-08-20",end_date:"2026-09-05",prio:"high",done:false,recur:"none"},
+  {name:"Oral presentation / defense",cat:"School",start_date:"2026-09-07",end_date:"2026-09-07",prio:"high",done:false,recur:"none"},
+  {name:"CV & LinkedIn overhaul",cat:"Career",start_date:"2026-09-01",end_date:"2026-09-15",prio:"high",done:false,recur:"none"},
+  {name:"Target company research",cat:"Career",start_date:"2026-09-10",end_date:"2026-09-30",prio:"med",done:false,recur:"none"},
+  {name:"Applications - Tier 1 automotive",cat:"Career",start_date:"2026-09-15",end_date:"2026-11-15",prio:"high",done:false,recur:"none"},
+  {name:"Technical interview prep",cat:"Career",start_date:"2026-09-20",end_date:"2026-11-30",prio:"high",done:false,recur:"none"},
+  {name:"Networking events & LinkedIn outreach",cat:"Career",start_date:"2026-10-01",end_date:"2026-12-15",prio:"med",done:false,recur:"none"},
+  {name:"Offers & decision",cat:"Career",start_date:"2026-11-15",end_date:"2026-12-31",prio:"high",done:false,recur:"none"},
+  {name:"Python: NumPy/SciPy for KF",cat:"Learning",start_date:"2026-03-23",end_date:"2026-04-05",prio:"high",done:false,recur:"none"},
+  {name:"Power electronics - Erickson ch.1-4",cat:"Learning",start_date:"2026-03-23",end_date:"2026-04-20",prio:"med",done:false,recur:"none"},
+  {name:"LTspice - simulate buck converter",cat:"Learning",start_date:"2026-04-06",end_date:"2026-04-25",prio:"med",done:false,recur:"none"},
+  {name:"FOC / SVPWM theory",cat:"Learning",start_date:"2026-04-21",end_date:"2026-05-15",prio:"med",done:false,recur:"none"},
+  {name:"AUTOSAR fundamentals (self-study)",cat:"Learning",start_date:"2026-05-26",end_date:"2026-07-20",prio:"med",done:false,recur:"none"},
+  {name:"ISO 26262 Part 6 - reading",cat:"Learning",start_date:"2026-06-01",end_date:"2026-07-31",prio:"low",done:false,recur:"none"},
+  {name:"Embedded C / RTOS (FreeRTOS)",cat:"Learning",start_date:"2026-07-21",end_date:"2026-09-30",prio:"med",done:false,recur:"none"},
+  {name:"ML for engineering (time-series)",cat:"Learning",start_date:"2026-10-01",end_date:"2026-12-01",prio:"med",done:false,recur:"none"},
+  {name:"Gym sessions (3x/week)",cat:"Health",start_date:"2026-01-01",end_date:"2026-12-31",prio:"med",done:false,recur:"xweek:3"},
+  {name:"Sleep & recovery habit",cat:"Health",start_date:"2026-01-01",end_date:"2026-12-31",prio:"high",done:false,recur:"daily"},
+  {name:"Endurance goal (run 5K to 10K)",cat:"Health",start_date:"2026-06-01",end_date:"2026-09-30",prio:"low",done:false,recur:"interval:3"}
 ];
 
-function setSyncStatus(s){const d=document.getElementById('sync-dot');d.className='sync-dot'+(s==='online'?'':s==='syncing'?' syncing':' offline');d.title=s==='online'?'Synced':s==='syncing'?'Syncing...':'Offline - using local data'}
+// ── SYNC ──────────────────────────────────────────────────────────────────────
+function setSyncStatus(s){
+  const d=document.getElementById('sync-dot');
+  d.className='sync-dot'+(s==='online'?'':s==='syncing'?' syncing':' offline');
+  d.title=s==='online'?'Synced':s==='syncing'?'Syncing...':'Offline - using local data';
+}
 
 async function loadTasks(){
   setSyncStatus('syncing');
@@ -308,12 +521,79 @@ function sw(name){
   document.querySelectorAll('.tab').forEach(t=>{if(t.textContent.toLowerCase().startsWith(name.substring(0,3)))t.classList.add('active');});
   if(name==='gantt')renderGantt(document.getElementById('gantt-filter').value);
   if(name==='progress')renderProgress();
+  if(name==='integrations')renderIntegrations();
 }
 
+// ── RECURRENCE ────────────────────────────────────────────────────────────────
+function recurStr(st){
+  if(st.type==='none')return'none';
+  if(st.type==='daily')return'daily';
+  if(st.type==='xweek')return`xweek:${st.n||1}`;
+  if(st.type==='weekdays')return`weekdays:${(st.days||[]).join(',')}`;
+  if(st.type==='interval')return`interval:${st.n||2}`;
+  return'none';
+}
+function parseRecur(s){
+  if(!s||s==='none')return{type:'none',n:1,days:[]};
+  if(s==='daily')return{type:'daily',n:1,days:[]};
+  const[type,val]=s.split(':');
+  if(type==='xweek')return{type:'xweek',n:parseInt(val)||1,days:[]};
+  if(type==='weekdays')return{type:'weekdays',n:1,days:val?val.split(',').map(Number):[]};
+  if(type==='interval')return{type:'interval',n:parseInt(val)||2,days:[]};
+  return{type:'none',n:1,days:[]};
+}
+
+function taskOccursOn(t,ds){
+  if(ds<t.start_date||ds>t.end_date)return false;
+  const r=parseRecur(t.recur||'none');
+  if(r.type==='none')return true;
+  const d=new Date(ds+'T00:00:00'),s=new Date(t.start_date+'T00:00:00');
+  const dow=d.getDay();
+  if(r.type==='daily')return true;
+  if(r.type==='interval'){const diff=Math.round((d-s)/86400000);return diff%r.n===0;}
+  if(r.type==='weekdays')return r.days.includes(dow);
+  if(r.type==='xweek'){if(dow===0||dow===6)return false;return dow<=r.n;}
+  return true;
+}
+
+function setRecur(ctx,type,el){
+  RS[ctx].type=type;
+  const prefix=ctx==='add'?'add':'m';
+  document.querySelectorAll(`#${prefix}-recur-opts .recur-chip`).forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderRecurDetail(ctx);
+}
+
+function renderRecurDetail(ctx){
+  const prefix=ctx==='add'?'add':'m';
+  const st=RS[ctx];
+  const c=document.getElementById(`${prefix}-recur-detail`);
+  if(st.type==='none'){c.innerHTML='';return;}
+  if(st.type==='daily'){c.innerHTML='<div class="recur-detail" style="margin-top:7px;color:var(--text2)">Repeats every day within the date range</div>';return;}
+  if(st.type==='xweek'){
+    c.innerHTML=`<div class="recur-detail">Repeat<input type="number" min="1" max="5" value="${st.n}" onchange="RS['${ctx}'].n=parseInt(this.value)||1">times per week (Mon–Fri order)</div>`;return;
+  }
+  if(st.type==='interval'){
+    c.innerHTML=`<div class="recur-detail">Every<input type="number" min="1" max="365" value="${st.n}" onchange="RS['${ctx}'].n=parseInt(this.value)||1">days</div>`;return;
+  }
+  if(st.type==='weekdays'){
+    const DN=['Su','Mo','Tu','We','Th','Fr','Sa'];
+    const chips=DN.map((d,i)=>`<span class="day-chip${st.days.includes(i)?' active':''}" onclick="toggleDay('${ctx}',${i})">${d}</span>`).join('');
+    c.innerHTML=`<div class="recur-detail"><div class="day-chips">${chips}</div></div>`;
+  }
+}
+
+function toggleDay(ctx,i){
+  const idx=RS[ctx].days.indexOf(i);
+  if(idx>=0)RS[ctx].days.splice(idx,1);else RS[ctx].days.push(i);
+  renderRecurDetail(ctx);
+}
+
+// ── TODAY ─────────────────────────────────────────────────────────────────────
 function getTodayTasks(){
   const seen=new Set();
   return tasks.filter(t=>{
-    if(t.start_date<=todayStr&&t.end_date>=todayStr){
+    if(taskOccursOn(t,todayStr)){
       const key=t.name.toLowerCase();
       if(seen.has(key))return false;
       seen.add(key);return true;
@@ -336,9 +616,12 @@ function renderToday(){
   if(!today.length){list.innerHTML='<div class="empty">No tasks today — add some!</div>';return;}
   today.forEach(t=>{
     const color=CATS[t.cat]||CATS.Others;const pc=t.prio==='high'?'ph':t.prio==='med'?'pm':'pl';
+    const r=parseRecur(t.recur||'none');
+    const rIcon=r.type!=='none'?'<span style="font-size:10px;opacity:.45;margin-left:3px">↺</span>':'';
     const el=document.createElement('div');el.className='task-item'+(t.done?' done':'');
-    el.innerHTML=`<div class="check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="task-info"><div class="task-name">${t.name}</div><div class="task-sub"><span class="dot" style="background:${color}"></span>${t.cat}</div></div><span class="prio-badge ${pc}">${t.prio}</span>`;
-    el.onclick=()=>toggleTask(t.id,!t.done);list.appendChild(el);
+    el.innerHTML=`<div class="check" onclick="event.stopPropagation();toggleTask(${t.id},${!t.done})"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="task-info"><div class="task-name">${t.name}${rIcon}</div><div class="task-sub"><span class="dot" style="background:${color}"></span>${t.cat}${t.notes?'<span style="opacity:.45;margin-left:4px">· notes</span>':''}</div></div><span class="prio-badge ${pc}">${t.prio}</span>`;
+    el.onclick=()=>openModal(t.id);
+    list.appendChild(el);
   });
 }
 
@@ -348,86 +631,126 @@ async function toggleTask(id,done){
   renderToday();
   await db.from('tasks').update({done}).eq('id',id);
   setSyncStatus('online');
-  // Live-update Gantt if it's open
-  const ganttPanel=document.getElementById('panel-gantt');
-  if(ganttPanel.classList.contains('active')){
+  if(document.getElementById('panel-gantt').classList.contains('active'))
     renderGantt(document.getElementById('gantt-filter').value);
-  }
 }
 
-// ── GANTT — only shows tasks where done === true ──────────────────────────────
+// ── QUICK ADD ─────────────────────────────────────────────────────────────────
+async function quickAdd(){
+  const name=document.getElementById('qa-name').value.trim();if(!name)return;
+  const cat=document.getElementById('qa-cat').value;
+  const end=document.getElementById('qa-end').value||todayStr;
+  setSyncStatus('syncing');
+  const{data,error}=await db.from('tasks').insert({name,cat,start_date:todayStr,end_date:end,prio:'med',done:false,recur:'none'}).select();
+  if(!error&&data){tasks.push(data[0]);renderToday();document.getElementById('qa-name').value='';showNotif('Task added!','"'+name+'" added.');}
+  setSyncStatus('online');
+}
+
+// ── TASK MODAL ────────────────────────────────────────────────────────────────
+function openModal(id){
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  modalTaskId=id;
+  document.getElementById('m-name').value=t.name;
+  document.getElementById('m-cat').value=t.cat;
+  document.getElementById('m-start').value=t.start_date;
+  document.getElementById('m-end').value=t.end_date;
+  document.getElementById('m-prio').value=t.prio||'med';
+  document.getElementById('m-notes').value=t.notes||'';
+  RS.modal=parseRecur(t.recur||'none');
+  document.querySelectorAll('#m-recur-opts .recur-chip').forEach(c=>{
+    const types=['none','daily','xweek','weekdays','interval'];
+    c.classList.toggle('active',types[Array.from(c.parentNode.children).indexOf(c)]===RS.modal.type);
+  });
+  renderRecurDetail('modal');
+  document.getElementById('task-modal').classList.add('open');
+}
+function closeModal(){document.getElementById('task-modal').classList.remove('open');modalTaskId=null;}
+
+async function saveModal(){
+  if(!modalTaskId)return;
+  const updates={
+    name:document.getElementById('m-name').value.trim(),
+    cat:document.getElementById('m-cat').value,
+    start_date:document.getElementById('m-start').value,
+    end_date:document.getElementById('m-end').value,
+    prio:document.getElementById('m-prio').value,
+    notes:document.getElementById('m-notes').value,
+    recur:recurStr(RS.modal)
+  };
+  setSyncStatus('syncing');
+  tasks=tasks.map(t=>t.id===modalTaskId?{...t,...updates}:t);
+  renderToday();closeModal();
+  await db.from('tasks').update(updates).eq('id',modalTaskId);
+  setSyncStatus('online');
+  if(document.getElementById('panel-gantt').classList.contains('active'))
+    renderGantt(document.getElementById('gantt-filter').value);
+  showNotif('Task updated','Changes saved.');
+}
+
+async function deleteTask(){
+  if(!modalTaskId)return;
+  if(!confirm('Delete this task?'))return;
+  const id=modalTaskId;
+  tasks=tasks.filter(t=>t.id!==id);
+  closeModal();renderToday();
+  setSyncStatus('syncing');
+  await db.from('tasks').delete().eq('id',id);
+  setSyncStatus('online');
+  showNotif('Task deleted','Removed from all devices.');
+}
+
+// ── GANTT + DRAG TO RESCHEDULE ────────────────────────────────────────────────
+let dragState=null;
+
 function renderGantt(cat){
   const s=new Date('2026-01-01'),e=new Date('2026-12-31');
   const days=[];
   for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1))days.push(d.toISOString().split('T')[0]);
-
-  // Filter by category first, then keep only checked (done) tasks
   const catFiltered=cat==='all'?tasks:tasks.filter(t=>t.cat===cat);
   const filtered=catFiltered.filter(t=>t.done);
-
   const mNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
   if(!filtered.length){
     const catLabel=cat==='all'?'yet':'in '+cat+' yet';
-    document.getElementById('gantt-wrap').innerHTML=
-      `<div class="gantt-empty">No completed tasks ${catLabel}.<br><span style="font-size:12px;opacity:.65">Check off tasks in the Today tab — they'll appear here.</span></div>`;
+    document.getElementById('gantt-wrap').innerHTML=`<div class="gantt-empty">No completed tasks ${catLabel}.<br><span style="font-size:12px;opacity:.65">Check off tasks in the Today tab — they'll appear here.</span></div>`;
     return;
   }
-
   let mSpans={};
   days.forEach(ds=>{const m=parseInt(ds.split('-')[1])-1;mSpans[m]=(mSpans[m]||0)+1;});
-
-  let h='<table class="gantt-tbl"><thead><tr><th rowspan="2">Task</th>';
-  Object.entries(mSpans).forEach(([m,span])=>{
-    h+=`<th colspan="${span}" style="border-left:.5px solid var(--bd)">${mNames[m]}</th>`;
-  });
+  let h='<table class="gantt-tbl" id="gantt-tbl"><thead><tr><th rowspan="2">Task</th>';
+  Object.entries(mSpans).forEach(([m,span])=>{h+=`<th colspan="${span}" style="border-left:.5px solid var(--bd)">${mNames[m]}</th>`;});
   h+='</tr><tr>';
   days.forEach(ds=>{
     const d=new Date(ds+'T00:00:00');
-    h+=`<th style="min-width:20px;width:20px;font-size:9px;${ds===todayStr?'color:var(--blue);font-weight:700':''}">${d.getDate()}</th>`;
+    h+=`<th data-day="${ds}" style="min-width:20px;width:20px;font-size:9px;${ds===todayStr?'color:var(--blue);font-weight:700':''}">${d.getDate()}</th>`;
   });
   h+='</tr></thead><tbody>';
-
   const catOrder=Object.keys(CATS);
   const byCat={};
   filtered.forEach(t=>{(byCat[t.cat]=byCat[t.cat]||[]).push(t);});
-
   const catsToRender=[...catOrder.filter(c=>byCat[c]),...Object.keys(byCat).filter(c=>!catOrder.includes(c))];
-
   catsToRender.forEach(currentCat=>{
     const catTasks=byCat[currentCat];if(!catTasks)return;
     const color=CATS[currentCat]||CATS.Others;
     h+=`<tr><td colspan="${days.length+1}" style="padding:4px 10px;font-size:10px;font-weight:600;color:${color};background:var(--bg2);border-bottom:.5px solid var(--bd);text-transform:uppercase;letter-spacing:.5px">${currentCat}</td></tr>`;
-
-    // Group by name so duplicate-named tasks still merge into one row
-    const nameOrder=[];
-    const byName={};
-    catTasks.forEach(t=>{
-      const key=t.name.toLowerCase();
-      if(!byName[key]){byName[key]=[];nameOrder.push(key);}
-      byName[key].push(t);
-    });
-
+    const nameOrder=[];const byName={};
+    catTasks.forEach(t=>{const key=t.name.toLowerCase();if(!byName[key]){byName[key]=[];nameOrder.push(key);}byName[key].push(t);});
     nameOrder.forEach(key=>{
-      const segments=byName[key];
-      const rep=segments[0];
-
-      h+=`<tr>`;
-      h+=`<td title="${rep.name}">&#10003; <span style="text-decoration:line-through;opacity:.5">${rep.name}</span></td>`;
-
+      const segments=byName[key];const rep=segments[0];
+      h+=`<tr><td title="${rep.name}">&#10003; <span style="text-decoration:line-through;opacity:.5">${rep.name}</span></td>`;
       days.forEach(ds=>{
         const isToday=ds===todayStr;
-        h+=`<td class="gcell${isToday?' gtoday':''}">`;
+        h+=`<td class="gcell${isToday?' gtoday':''}" data-day="${ds}">`;
         for(const t of segments){
           if(ds>=t.start_date&&ds<=t.end_date){
             const isMile=t.start_date===t.end_date;
-            if(isMile){
-              h+=`<div class="gmile" style="color:${color}">&#9670;</div>`;
-            } else {
-              const isFirst=ds===t.start_date;
-              const isLast=ds===t.end_date;
+            if(isMile){h+=`<div class="gmile" style="color:${color}">&#9670;</div>`;}
+            else{
+              const isFirst=ds===t.start_date,isLast=ds===t.end_date;
               const br=isFirst&&isLast?'3px':isFirst?'3px 0 0 3px':isLast?'0 3px 3px 0':'0';
-              h+=`<div class="gbar" style="background:${color};opacity:.4;border-radius:${br}"></div>`;
+              h+=`<div class="gbar" data-tid="${t.id}" data-start="${t.start_date}" data-end="${t.end_date}" style="background:${color};opacity:.45;border-radius:${br}">`;
+              if(isFirst)h+=`<div class="gbar-edge left" data-edge="left" data-tid="${t.id}"></div>`;
+              if(isLast)h+=`<div class="gbar-edge right" data-edge="right" data-tid="${t.id}"></div>`;
+              h+=`</div>`;
             }
             break;
           }
@@ -437,40 +760,75 @@ function renderGantt(cat){
       h+='</tr>';
     });
   });
-
   h+='</tbody></table>';
   document.getElementById('gantt-wrap').innerHTML=h;
+  attachGanttDrag();
+}
+
+function attachGanttDrag(){
+  const wrap=document.getElementById('gantt-wrap');if(!wrap)return;
+  function dayFromX(cx){
+    const tbl=document.getElementById('gantt-tbl');if(!tbl)return null;
+    const ths=[...tbl.querySelectorAll('thead tr:nth-child(2) th[data-day]')];
+    for(const th of ths){const r=th.getBoundingClientRect();if(cx>=r.left&&cx<=r.right)return th.dataset.day;}
+    return null;
+  }
+  function shiftDate(ds,n){const d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
+
+  wrap.addEventListener('mousedown',e=>{
+    const edge=e.target.closest('[data-edge]');
+    const bar=!edge&&e.target.closest('[data-tid]');
+    if(!edge&&!bar)return;
+    e.preventDefault();
+    const tid=parseInt((edge||bar).dataset.tid);
+    const t=tasks.find(x=>x.id===tid);if(!t)return;
+    dragState={tid,mode:edge?edge.dataset.edge:'move',origStart:t.start_date,origEnd:t.end_date,startDay:dayFromX(e.clientX)};
+    document.body.style.cursor=edge?'ew-resize':'grabbing';
+  });
+
+  window.addEventListener('mousemove',e=>{
+    if(!dragState)return;
+    const curDay=dayFromX(e.clientX);if(!curDay||curDay===dragState.lastDay)return;
+    dragState.lastDay=curDay;
+    const diff=Math.round((new Date(curDay)-new Date(dragState.startDay))/86400000);
+    if(diff===0)return;
+    let ns=dragState.origStart,ne=dragState.origEnd;
+    if(dragState.mode==='move'){ns=shiftDate(dragState.origStart,diff);ne=shiftDate(dragState.origEnd,diff);}
+    else if(dragState.mode==='left'){ns=shiftDate(dragState.origStart,diff);if(ns>=ne)ns=shiftDate(ne,-1);}
+    else if(dragState.mode==='right'){ne=shiftDate(dragState.origEnd,diff);if(ne<=ns)ne=shiftDate(ns,1);}
+    tasks=tasks.map(x=>x.id===dragState.tid?{...x,start_date:ns,end_date:ne}:x);
+    renderGantt(document.getElementById('gantt-filter').value);
+  });
+
+  window.addEventListener('mouseup',async()=>{
+    if(!dragState)return;
+    const t=tasks.find(x=>x.id===dragState.tid);
+    document.body.style.cursor='';
+    if(t&&(t.start_date!==dragState.origStart||t.end_date!==dragState.origEnd)){
+      setSyncStatus('syncing');
+      await db.from('tasks').update({start_date:t.start_date,end_date:t.end_date}).eq('id',t.id);
+      setSyncStatus('online');
+      showNotif('Task rescheduled',`"${t.name}" moved to ${t.start_date}`);
+    }
+    dragState=null;
+  });
 }
 
 function jumpToday(){
   const wrap=document.getElementById('gantt-wrap');
-  const ths=wrap.querySelectorAll('th');
-  ths.forEach(th=>{if(th.style.fontWeight==='700')wrap.scrollLeft=Math.max(0,th.offsetLeft-200);});
+  wrap.querySelectorAll('th').forEach(th=>{if(th.style.fontWeight==='700')wrap.scrollLeft=Math.max(0,th.offsetLeft-200);});
 }
 
+// ── ADD TASK ──────────────────────────────────────────────────────────────────
 async function addTask(){
   const name=document.getElementById('f-name').value.trim();
   if(!name){showNotif('Missing field','Please enter a task name.');return;}
   const btn=document.getElementById('add-btn');btn.disabled=true;btn.textContent='Adding...';
   setSyncStatus('syncing');
-  const nt={
-    name,
-    cat:document.getElementById('f-cat').value,
-    start_date:document.getElementById('f-start').value||todayStr,
-    end_date:document.getElementById('f-end').value||todayStr,
-    prio:document.getElementById('f-prio').value,
-    done:false,
-    notes:document.getElementById('f-notes').value
-  };
+  const nt={name,cat:document.getElementById('f-cat').value,start_date:document.getElementById('f-start').value||todayStr,end_date:document.getElementById('f-end').value||todayStr,prio:document.getElementById('f-prio').value,done:false,notes:document.getElementById('f-notes').value,recur:recurStr(RS.add)};
   const{data,error}=await db.from('tasks').insert(nt).select();
-  if(!error&&data){
-    tasks.push(data[0]);renderToday();
-    document.getElementById('f-name').value='';
-    document.getElementById('f-notes').value='';
-    showNotif('Task added!','"'+name+'" synced to all devices.');
-  } else {
-    showNotif('Error','Could not save task.');
-  }
+  if(!error&&data){tasks.push(data[0]);renderToday();document.getElementById('f-name').value='';document.getElementById('f-notes').value='';showNotif('Task added!','"'+name+'" synced.');}
+  else showNotif('Error','Could not save task.');
   btn.disabled=false;btn.textContent='Add task';setSyncStatus('online');
 }
 
@@ -485,10 +843,7 @@ async function aiSuggest(){
       const color=CATS[s.cat]||CATS.Others;
       const el=document.createElement('div');el.className='sug-item';
       el.innerHTML=`<span class="dot" style="background:${color}"></span><span style="flex:1">${s.name}</span><span style="font-size:11px;color:var(--text2)">${s.cat}</span>`;
-      el.onclick=async()=>{
-        const{data:d}=await db.from('tasks').insert({name:s.name,cat:s.cat,start_date:todayStr,end_date:todayStr,prio:s.prio,done:false}).select();
-        if(d){tasks.push(d[0]);renderToday();showNotif('Added!','"'+s.name+'" synced.');el.style.opacity='.35';el.style.pointerEvents='none';}
-      };
+      el.onclick=async()=>{const{data:d}=await db.from('tasks').insert({name:s.name,cat:s.cat,start_date:todayStr,end_date:todayStr,prio:s.prio,done:false,recur:'none'}).select();if(d){tasks.push(d[0]);renderToday();showNotif('Added!','"'+s.name+'" synced.');el.style.opacity='.35';el.style.pointerEvents='none';}};
       box.appendChild(el);
     });
   }catch(e){box.innerHTML='<div style="font-size:13px;color:#DC2626">Could not load suggestions.</div>';}
@@ -499,19 +854,13 @@ async function ask(){
   const out=document.getElementById('ai-out');out.textContent='Thinking...';document.getElementById('ai-in').value='';
   const today=getTodayTasks();
   const ctx=`You are a personal productivity assistant. Today is ${todayStr}. Tasks today: ${today.map(t=>t.name+' ('+t.cat+', '+t.prio+(t.done?', done':'')+')').join('; ')}. Answer in 2-3 sentences.`;
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:ctx,messages:[{role:'user',content:q}]})});
-    const data=await r.json();out.textContent=data.content?.[0]?.text||'No response.';
-  }catch(e){out.textContent='Could not reach AI.';}
+  try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:ctx,messages:[{role:'user',content:q}]})});const data=await r.json();out.textContent=data.content?.[0]?.text||'No response.';}catch(e){out.textContent='Could not reach AI.';}
 }
 
 async function weeklyReview(){
   const out=document.getElementById('weekly-out');out.textContent='Generating your weekly review...';
   const done=tasks.filter(t=>t.done).length;
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:`You are a productivity coach for an engineering student interning at Bertrandt (BMS calibration for Renault), building a SoC Estimator (EKF/UKF). Stats: ${done}/${tasks.length} tasks completed. Give a concise 3-sentence weekly review: what likely went well, one improvement, and the top priority for next week.`}]})});
-    const data=await r.json();out.textContent=data.content?.[0]?.text||'No response.';
-  }catch(e){out.textContent='Could not reach AI.';}
+  try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:`You are a productivity coach for an engineering student interning at Bertrandt (BMS calibration for Renault), building a SoC Estimator (EKF/UKF). Stats: ${done}/${tasks.length} tasks completed. Give a concise 3-sentence weekly review: what likely went well, one improvement, and the top priority for next week.`}]})});const data=await r.json();out.textContent=data.content?.[0]?.text||'No response.';}catch(e){out.textContent='Could not reach AI.';}
 }
 
 function renderProgress(){
@@ -519,11 +868,139 @@ function renderProgress(){
   Object.entries(CATS).forEach(([cat,color])=>{
     const ct=tasks.filter(t=>t.cat===cat);const dn=ct.filter(t=>t.done).length;const pct=ct.length?Math.round(dn/ct.length*100):0;
     const el=document.createElement('div');el.className='pcat';
-    el.innerHTML=`<div class="pcat-title"><span class="dot" style="background:${color}"></span>${cat}</div><div class="pbar-bg"><div class="pbar-fill" style="width:${pct}%;background:${color}"></div></div><div class="pstat">${dn}/${ct.length} tasks (segments) &middot; ${pct}%</div>`;
+    el.innerHTML=`<div class="pcat-title"><span class="dot" style="background:${color}"></span>${cat}</div><div class="pbar-bg"><div class="pbar-fill" style="width:${pct}%;background:${color}"></div></div><div class="pstat">${dn}/${ct.length} tasks &middot; ${pct}%</div>`;
     grid.appendChild(el);
   });
 }
 
+// ── EOD REVIEW ────────────────────────────────────────────────────────────────
+async function openEodReview(){
+  const today=getTodayTasks();const done=today.filter(t=>t.done).length;
+  const now=new Date();
+  document.getElementById('eod-date-label').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('eod-done').textContent=done;
+  document.getElementById('eod-pending').textContent=today.length-done;
+  document.getElementById('eod-total').textContent=today.length;
+  document.getElementById('eod-ov').classList.add('open');
+  const out=document.getElementById('eod-ai-out');out.textContent='Generating your reflection...';
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:`You are a warm productivity coach. Today's stats: ${done}/${today.length} tasks completed. Tasks: ${today.map(t=>t.name+(t.done?' ✓':' ○')).join(', ')}. Give a brief 2-3 sentence end-of-day reflection: acknowledge effort, one gentle observation, and a positive send-off for tomorrow.`}]})});
+    const data=await r.json();out.textContent=data.content?.[0]?.text||'Great work today!';
+  }catch(e){out.textContent='Great work today! Get some rest and come back strong tomorrow.';}
+  localStorage.setItem('lg-eod-shown',todayStr);eodShownDate=todayStr;
+}
+function closeEod(){document.getElementById('eod-ov').classList.remove('open');}
+
+// ── GOOGLE CALENDAR ───────────────────────────────────────────────────────────
+const GCAL_CLIENT_ID='YOUR_GOOGLE_CLIENT_ID'; // Replace with your OAuth Client ID
+const GCAL_SCOPE='https://www.googleapis.com/auth/calendar';
+let gcalToken=null;
+try{const s=localStorage.getItem('lg-gcal-token');if(s){const p=JSON.parse(s);if(p.expiry>Date.now())gcalToken=p.token;}}catch(e){}
+
+function renderIntegrations(){
+  document.getElementById('gcal-status').textContent=gcalToken?'Connected':'Not connected';
+  document.getElementById('gcal-status').className='status-badge'+(gcalToken?' connected':'');
+  document.getElementById('gcal-export-btn').disabled=!gcalToken;
+  document.getElementById('gcal-import-btn').disabled=!gcalToken;
+  document.getElementById('gcal-connect-btn').textContent=gcalToken?'Disconnect':'Connect GCal';
+  if('Notification' in window){
+    const st=Notification.permission;
+    document.getElementById('push-status').textContent=st==='granted'?'Enabled':st==='denied'?'Blocked':'Not enabled';
+    document.getElementById('push-status').className='status-badge'+(st==='granted'?' enabled':'');
+    document.getElementById('push-enable-btn').disabled=st==='granted';
+    document.getElementById('push-enable-btn').textContent=st==='granted'?'Enabled ✓':'Enable notifications';
+  }
+  document.getElementById('briefing-time').value=notifSettings.briefingTime;
+  document.getElementById('eod-time').value=notifSettings.eodTime;
+  document.getElementById('deadline-warn').value=notifSettings.deadlineWarnHours;
+}
+
+function gcalConnect(){
+  if(gcalToken){gcalToken=null;localStorage.removeItem('lg-gcal-token');renderIntegrations();showNotif('Disconnected','Google Calendar unlinked.');return;}
+  if(!window.google?.accounts){const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.onload=gcalAuthFlow;document.head.appendChild(sc);}
+  else gcalAuthFlow();
+}
+
+function gcalAuthFlow(){
+  if(GCAL_CLIENT_ID==='YOUR_GOOGLE_CLIENT_ID'){
+    showNotif('Setup required','Add your Google OAuth Client ID in the source to enable Calendar sync. See Integrations tab for instructions.');
+    return;
+  }
+  const client=google.accounts.oauth2.initTokenClient({
+    client_id:GCAL_CLIENT_ID,scope:GCAL_SCOPE,
+    callback:(resp)=>{
+      if(resp.error){showNotif('Auth failed',resp.error);return;}
+      gcalToken=resp.access_token;
+      localStorage.setItem('lg-gcal-token',JSON.stringify({token:gcalToken,expiry:Date.now()+3500000}));
+      renderIntegrations();showNotif('Google Calendar connected!','You can now sync your tasks.');
+    }
+  });
+  client.requestAccessToken();
+}
+
+async function gcalExport(){
+  if(!gcalToken){showNotif('Not connected','Connect Google Calendar first.');return;}
+  showNotif('Exporting…','Pushing tasks to Google Calendar…');
+  const toExport=tasks.filter(t=>t.start_date>=todayStr).slice(0,50);
+  let ok=0;
+  for(const t of toExport){
+    try{
+      await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{
+        method:'POST',headers:{Authorization:'Bearer '+gcalToken,'Content-Type':'application/json'},
+        body:JSON.stringify({summary:`[LifeGantt] ${t.name}`,description:`Category: ${t.cat}\nPriority: ${t.prio}${t.notes?'\nNotes: '+t.notes:''}`,start:{date:t.start_date},end:{date:t.end_date}})
+      });ok++;
+    }catch(e){}
+  }
+  showNotif('Export complete',`${ok} tasks pushed to Google Calendar.`);
+}
+
+async function gcalImport(){
+  if(!gcalToken){showNotif('Not connected','Connect Google Calendar first.');return;}
+  showNotif('Importing…','Pulling events from Google Calendar…');
+  try{
+    const now=new Date().toISOString();const endT=new Date(Date.now()+30*86400000).toISOString();
+    const resp=await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${now}&timeMax=${endT}&maxResults=20&singleEvents=true&orderBy=startTime`,{headers:{Authorization:'Bearer '+gcalToken}});
+    const data=await resp.json();
+    const events=(data.items||[]).filter(ev=>ev.summary&&!ev.summary.startsWith('[LifeGantt]'));
+    let added=0;
+    for(const ev of events){
+      const name=ev.summary;const start=ev.start?.date||ev.start?.dateTime?.split('T')[0]||todayStr;const end=ev.end?.date||ev.end?.dateTime?.split('T')[0]||start;
+      if(tasks.some(t=>t.name===name&&t.start_date===start))continue;
+      const{data:d}=await db.from('tasks').insert({name,cat:'Others',start_date:start,end_date:end,prio:'med',done:false,recur:'none',notes:'Imported from Google Calendar'}).select();
+      if(d){tasks.push(d[0]);added++;}
+    }
+    renderToday();showNotif('Import complete',`${added} new events imported as tasks.`);
+  }catch(e){showNotif('Import failed','Could not reach Google Calendar.');}
+}
+
+// ── PUSH NOTIFICATIONS ────────────────────────────────────────────────────────
+async function enablePush(){
+  if(!('Notification' in window)){showNotif('Not supported','Your browser does not support notifications.');return;}
+  const perm=await Notification.requestPermission();
+  renderIntegrations();
+  if(perm==='granted')showNotif('Notifications enabled!','You\'ll receive deadline reminders and briefings.');
+  else showNotif('Blocked','Allow notifications in browser settings to enable this.');
+}
+
+function sendPushNotif(title,body){
+  if(Notification.permission!=='granted')return;
+  try{new Notification(title,{body,icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="%233B82F6"/><text x="16" y="23" text-anchor="middle" font-size="20" fill="white">G</text></svg>'});}catch(e){}
+}
+
+function testPushNotif(){
+  if(Notification.permission!=='granted'){enablePush();return;}
+  sendPushNotif('LifeGantt test 🎉','Push notifications are working!');
+}
+
+function saveNotifSettings(){
+  notifSettings.briefingTime=document.getElementById('briefing-time').value;
+  notifSettings.eodTime=document.getElementById('eod-time').value;
+  notifSettings.deadlineWarnHours=parseInt(document.getElementById('deadline-warn').value);
+  try{localStorage.setItem('lg-notif',JSON.stringify(notifSettings));}catch(e){}
+  showNotif('Settings saved','Notification schedule updated.');
+}
+
+// ── MISC ──────────────────────────────────────────────────────────────────────
 let nt=null;
 function showNotif(title,body){document.getElementById('n-title').textContent=title;document.getElementById('n-body').textContent=body;const el=document.getElementById('notif');el.classList.add('show');clearTimeout(nt);nt=setTimeout(()=>el.classList.remove('show'),4500);}
 
@@ -541,29 +1018,14 @@ function focusMode(){
   }
 }
 
-document.getElementById('f-start').value=todayStr;
-document.getElementById('f-end').value=todayStr;
-startClock();
-loadTasks().then(()=>setTimeout(()=>showNotif('LifeGantt ready',getTodayTasks().length+' tasks today, synced across all devices.'),1200));
-
 // ── EXCEL EXPORT ──────────────────────────────────────────────────────────────
 async function downloadExcel(){
   const btn=document.getElementById('dl-btn');btn.textContent='Building...';btn.disabled=true;
-  const CAT_CFG={
-    Project:{hbg:'534AB7',bar:'8A6ED8',label:'SoC Estimator & Hardware Projects'},
-    Work:   {hbg:'185FA5',bar:'3785DE',label:'Work - Internship'},
-    School: {hbg:'854F0B',bar:'E07B1C',label:'School / Report'},
-    Career: {hbg:'712B13',bar:'D85A30',label:'Job Search / Career'},
-    Learning:{hbg:'0F6E56',bar:'1DA875',label:'Learning'},
-    Health: {hbg:'993556',bar:'D4537E',label:'Health & Fitness'},
-    Personal:{hbg:'444441',bar:'888880',label:'Personal'},
-    Others: {hbg:'6D4AC5',bar:'A78BFA',label:'Others'},
-  };
+  const CAT_CFG={Project:{hbg:'534AB7',bar:'8A6ED8',label:'SoC Estimator & Hardware Projects'},Work:{hbg:'185FA5',bar:'3785DE',label:'Work - Internship'},School:{hbg:'854F0B',bar:'E07B1C',label:'School / Report'},Career:{hbg:'712B13',bar:'D85A30',label:'Job Search / Career'},Learning:{hbg:'0F6E56',bar:'1DA875',label:'Learning'},Health:{hbg:'993556',bar:'D4537E',label:'Health & Fitness'},Personal:{hbg:'444441',bar:'888880',label:'Personal'},Others:{hbg:'6D4AC5',bar:'A78BFA',label:'Others'}};
   const CAT_ORDER=['Project','Work','School','Career','Learning','Health','Personal','Others'];
   const MONTHS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   const MDAYS=[31,28,31,30,31,30,31,31,30,31,30,31];
-  const year=2026;
-  const allDays=[];
+  const year=2026;const allDays=[];
   for(let m=0;m<12;m++) for(let d=1;d<=MDAYS[m];d++) allDays.push({m,d,date:`${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,dow:new Date(year,m,d).getDay()});
   const todayISO=new Date().toISOString().split('T')[0];
   const wb=new ExcelJS.Workbook();wb.creator='LifeGantt';wb.created=new Date();
@@ -575,13 +1037,12 @@ async function downloadExcel(){
   const font=(bold,size,argb)=>({name:'Arial',bold,size,color:{argb:'FF'+argb}});
   const aln=(h,v='middle')=>({horizontal:h,vertical:v});
   ws.getRow(1).height=28;ws.mergeCells(1,1,1,3);
-  const t1=ws.getCell(1,1);t1.value='2026 Life & Career Planner - Full Year';
-  t1.font=font(true,13,'2C2C2A');t1.fill=f('FAFAF9');t1.alignment=aln('left');
+  const t1=ws.getCell(1,1);t1.value='2026 Life & Career Planner - Full Year';t1.font=font(true,13,'2C2C2A');t1.fill=f('FAFAF9');t1.alignment=aln('left');
   for(let i=0;i<allDays.length;i++) ws.getCell(1,i+4).fill=f('FAFAF9');
   ws.getRow(2).height=17;let col=4;
   for(let m=0;m<12;m++){const dm=MDAYS[m];ws.mergeCells(2,col,2,col+dm-1);const mc=ws.getCell(2,col);mc.value=MONTHS[m];mc.font=font(true,8,'444441');mc.fill=f('E8E6E0');mc.alignment=aln('center');for(let dc=col;dc<col+dm;dc++) ws.getCell(2,dc).fill=f('E8E6E0');col+=dm;}
   ws.getRow(3).height=13;let wn=1,wstart=4,prevW=null;
-  for(let i=0;i<allDays.length;i++){const isoW=getISOWeek(new Date(year,allDays[i].m,allDays[i].d));ws.getCell(3,i+4).fill=f('F1EFE8');if(isoW!==prevW){if(prevW!==null){try{ws.mergeCells(3,wstart,3,i+3);}catch(e){}const wc=ws.getCell(3,wstart);wc.value='W'+wn;wc.font=font(false,7,'888880');wc.fill=f('F1EFE8');wc.alignment=aln('center');wn++;}wstart=i+4;prevW=isoW;}}
+  for(let i=0;i<allDays.length;i++){const isoW=getISOWeek(new Date(year,allDays[i].m,allDays[i].d));ws.getCell(3,i+4).fill=f('F1EFE8');if(isoW!==prevW){if(prevW!==null){try{ws.mergeCells(3,wstart,3,i+3);}catch(e){}const wc2=ws.getCell(3,wstart);wc2.value='W'+wn;wc2.font=font(false,7,'888880');wc2.fill=f('F1EFE8');wc2.alignment=aln('center');wn++;}wstart=i+4;prevW=isoW;}}
   try{ws.mergeCells(3,wstart,3,allDays.length+3);}catch(e){}
   const wc=ws.getCell(3,wstart);wc.value='W'+wn;wc.font=font(false,7,'888880');wc.fill=f('F1EFE8');wc.alignment=aln('center');
   ws.getRow(4).height=13;
@@ -610,13 +1071,7 @@ async function downloadExcel(){
       for(let i=0;i<allDays.length;i++){
         const{date,dow}=allDays[i];const isWe=dow===0||dow===6;
         const cell=ws.getCell(row,i+4);let painted=false;
-        for(const t of segs){
-          if(date>=t.start_date&&date<=t.end_date){
-            if(t.start_date===t.end_date){cell.value='◆';cell.font=font(true,8,cfg.hbg);cell.fill=f('FFFFFF');cell.alignment=aln('center');}
-            else{cell.fill=f(cfg.bar);}
-            painted=true;break;
-          }
-        }
+        for(const t of segs){if(date>=t.start_date&&date<=t.end_date){if(t.start_date===t.end_date){cell.value='◆';cell.font=font(true,8,cfg.hbg);cell.fill=f('FFFFFF');cell.alignment=aln('center');}else{cell.fill=f(cfg.bar);}painted=true;break;}}
         if(!painted)cell.fill=f(isWe?'EDECEA':'F5F4F2');
       }
       row++;
@@ -626,49 +1081,67 @@ async function downloadExcel(){
   const buffer=await wb.xlsx.writeBuffer();
   const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='LifeGantt_2026.xlsx';a.click();URL.revokeObjectURL(url);
-  showNotif('Download ready!','LifeGantt_2026.xlsx saved to your device.');
+  showNotif('Download ready!','LifeGantt_2026.xlsx saved.');
   btn.textContent='↓ Excel';btn.disabled=false;
 }
 
 function getISOWeek(d){const date=new Date(d.getTime());date.setHours(0,0,0,0);date.setDate(date.getDate()+3-(date.getDay()+6)%7);const week1=new Date(date.getFullYear(),0,4);return 1+Math.round(((date.getTime()-week1.getTime())/86400000-3+(week1.getDay()+6)%7)/7);}
 
-// ── LIVE CLOCK + DAY PROGRESS + COUNTDOWN ─────────────────────────────────────
+// ── CLOCK + SCHEDULED TRIGGERS ────────────────────────────────────────────────
 function startClock(){
-  let lastDateStr='';
+  let lastDateStr='',lastH=-1,lastM=-1;
   function tick(){
     const now=new Date();
-    const h=String(now.getHours()).padStart(2,'0');const m=String(now.getMinutes()).padStart(2,'0');const s=String(now.getSeconds()).padStart(2,'0');
+    const h=String(now.getHours()).padStart(2,'0'),m=String(now.getMinutes()).padStart(2,'0'),s=String(now.getSeconds()).padStart(2,'0');
     document.getElementById('clock-hm').textContent=h+':'+m;
     document.getElementById('clock-s').textContent=s;
-    const secsSinceMidnight=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
-    const dayPct=Math.round(secsSinceMidnight/864);
-    document.getElementById('day-prog-fill').style.width=dayPct+'%';
-    document.getElementById('day-pct-label').textContent=dayPct+'%';
-    const dateStr=now.toISOString().split('T')[0];
-    if(lastDateStr&&dateStr!==lastDateStr){window.todayDate=new Date();window.todayStr=dateStr;loadTasks();}
-    lastDateStr=dateStr;
+    const secs=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
+    const pct=Math.round(secs/864);
+    document.getElementById('day-prog-fill').style.width=pct+'%';
+    document.getElementById('day-pct-label').textContent=pct+'%';
+    const ds=now.toISOString().split('T')[0];
+    if(lastDateStr&&ds!==lastDateStr){window.todayStr=ds;loadTasks();}
+    lastDateStr=ds;
     updateCountdown(now);
+    const ch=now.getHours(),cm=now.getMinutes();
+    if(ch!==lastH||cm!==lastM){
+      lastH=ch;lastM=cm;
+      const ts=`${String(ch).padStart(2,'0')}:${String(cm).padStart(2,'0')}`;
+      if(ts===notifSettings.briefingTime)sendPushNotif('Good morning ☀️',getTodayTasks().length+' tasks today.');
+      if(ts===notifSettings.eodTime&&eodShownDate!==ds)openEodReview();
+      if(cm===0){
+        const wMs=notifSettings.deadlineWarnHours*3600000;
+        tasks.filter(t=>!t.done).forEach(t=>{
+          const dl=new Date(t.end_date+'T23:59:59'),diff=dl-now;
+          if(diff>0&&diff<=wMs&&diff>wMs-3600000)sendPushNotif('⏰ Deadline soon',`"${t.name}" is due soon!`);
+        });
+      }
+    }
   }
   tick();setInterval(tick,1000);
 }
 
 function updateCountdown(now){
-  const box=document.getElementById('countdown-box');const label=document.getElementById('countdown-label');const timeEl=document.getElementById('countdown-time');
-  if(!tasks||!tasks.length){box.style.display='none';return;}
-  const nowStr=now.toISOString().split('T')[0];
-  const upcoming=tasks.filter(t=>!t.done&&t.end_date>=nowStr).sort((a,b)=>a.end_date.localeCompare(b.end_date));
-  if(!upcoming.length){box.style.display='none';return;}
-  const next=upcoming[0];const deadline=new Date(next.end_date+'T23:59:59');const diffMs=deadline-now;
+  const box=document.getElementById('countdown-box'),label=document.getElementById('countdown-label'),timeEl=document.getElementById('countdown-time');
+  if(!tasks?.length){box.style.display='none';return;}
+  const ns=now.toISOString().split('T')[0];
+  const up=tasks.filter(t=>!t.done&&t.end_date>=ns).sort((a,b)=>a.end_date.localeCompare(b.end_date));
+  if(!up.length){box.style.display='none';return;}
+  const next=up[0],dl=new Date(next.end_date+'T23:59:59'),diffMs=dl-now;
   if(diffMs<0){box.style.display='none';return;}
   box.style.display='flex';label.textContent='Deadline: '+next.name;
-  const totalSecs=Math.floor(diffMs/1000);const dd=Math.floor(totalSecs/86400);const hh=Math.floor((totalSecs%86400)/3600);const mm=Math.floor((totalSecs%3600)/60);const ss=totalSecs%60;
-  let display='';
-  if(dd>0) display=dd+'d '+String(hh).padStart(2,'0')+'h '+String(mm).padStart(2,'0')+'m';
-  else if(hh>0) display=String(hh).padStart(2,'0')+'h '+String(mm).padStart(2,'0')+'m '+String(ss).padStart(2,'0')+'s';
-  else display=String(mm).padStart(2,'0')+'m '+String(ss).padStart(2,'0')+'s';
+  const ts=Math.floor(diffMs/1000),dd=Math.floor(ts/86400),hh=Math.floor((ts%86400)/3600),mm=Math.floor((ts%3600)/60),ss=ts%60;
+  let display=dd>0?dd+'d '+String(hh).padStart(2,'0')+'h '+String(mm).padStart(2,'0')+'m':hh>0?String(hh).padStart(2,'0')+'h '+String(mm).padStart(2,'0')+'m '+String(ss).padStart(2,'0')+'s':String(mm).padStart(2,'0')+'m '+String(ss).padStart(2,'0')+'s';
   timeEl.textContent=display;
   timeEl.className='countdown-time'+(dd===0&&hh<2?' urgent':'');
 }
+
+// Init
+document.getElementById('f-start').value=todayStr;
+document.getElementById('f-end').value=todayStr;
+document.getElementById('qa-end').value=todayStr;
+startClock();
+loadTasks().then(()=>setTimeout(()=>showNotif('LifeGantt ready',getTodayTasks().length+' tasks today, synced across all devices.'),1200));
 </script>
 </body>
 </html>
