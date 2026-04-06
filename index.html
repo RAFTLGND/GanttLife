@@ -619,7 +619,12 @@ function renderToday(){
     const r=parseRecur(t.recur||'none');
     const rIcon=r.type!=='none'?'<span style="font-size:10px;opacity:.45;margin-left:3px">↺</span>':'';
     const el=document.createElement('div');el.className='task-item'+(t.done?' done':'');
-    el.innerHTML=`<div class="check" onclick="event.stopPropagation();toggleTask(${t.id},${!t.done})"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="task-info"><div class="task-name">${t.name}${rIcon}</div><div class="task-sub"><span class="dot" style="background:${color}"></span>${t.cat}${t.notes?'<span style="opacity:.45;margin-left:4px">· notes</span>':''}</div></div><span class="prio-badge ${pc}">${t.prio}</span>`;
+    el.innerHTML=`<div class="check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="task-info"><div class="task-name">${t.name}${rIcon}</div><div class="task-sub"><span class="dot" style="background:${color}"></span>${t.cat}${t.notes?'<span style="opacity:.45;margin-left:4px">· notes</span>':''}</div></div><span class="prio-badge ${pc}">${t.prio}</span>`;
+    // Circle toggles done; anywhere else on the row opens the modal
+    el.querySelector('.check').addEventListener('click', e => {
+      e.stopPropagation();
+      toggleTask(t.id, !t.done);
+    });
     el.onclick=()=>openModal(t.id);
     list.appendChild(el);
   });
@@ -923,7 +928,7 @@ async function openEodReview(){
 function closeEod(){document.getElementById('eod-ov').classList.remove('open');}
 
 // ── GOOGLE CALENDAR ───────────────────────────────────────────────────────────
-const GCAL_CLIENT_ID='872693971163-hau61eu7lqjahsntk1bebk6pqdhgk5r4.apps.googleusercontent.com'; // Replace with your OAuth Client ID
+const GCAL_CLIENT_ID='YOUR_GOOGLE_CLIENT_ID'; // Replace with your OAuth Client ID
 const GCAL_SCOPE='https://www.googleapis.com/auth/calendar';
 let gcalToken=null;
 try{const s=localStorage.getItem('lg-gcal-token');if(s){const p=JSON.parse(s);if(p.expiry>Date.now())gcalToken=p.token;}}catch(e){}
