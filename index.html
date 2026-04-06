@@ -641,8 +641,11 @@ async function quickAdd(){
   const cat=document.getElementById('qa-cat').value;
   const end=document.getElementById('qa-end').value||todayStr;
   setSyncStatus('syncing');
-  const{data,error}=await db.from('tasks').insert({name,cat,start_date:todayStr,end_date:end,prio:'med',done:false,recur:'none'}).select();
+  const base={name,cat,start_date:todayStr,end_date:end,prio:'med',done:false};
+  let{data,error}=await db.from('tasks').insert({...base,recur:'none'}).select();
+  if(error){const retry=await db.from('tasks').insert(base).select();data=retry.data;error=retry.error;}
   if(!error&&data){tasks.push(data[0]);renderToday();document.getElementById('qa-name').value='';showNotif('Task added!','"'+name+'" added.');}
+  else if(error)showNotif('Error','Could not save: '+(error?.message||'unknown'));
   setSyncStatus('online');
 }
 
@@ -668,19 +671,30 @@ function closeModal(){document.getElementById('task-modal').classList.remove('op
 
 async function saveModal(){
   if(!modalTaskId)return;
+  // Base updates — always-safe columns
   const updates={
     name:document.getElementById('m-name').value.trim(),
     cat:document.getElementById('m-cat').value,
     start_date:document.getElementById('m-start').value,
     end_date:document.getElementById('m-end').value,
-    prio:document.getElementById('m-prio').value,
-    notes:document.getElementById('m-notes').value,
-    recur:recurStr(RS.modal)
+    prio:document.getElementById('m-prio').value
   };
+  const notesVal=document.getElementById('m-notes').value;
+  if(notesVal!==undefined)updates.notes=notesVal;
+  const recurVal=recurStr(RS.modal);
+  if(recurVal)updates.recur=recurVal;
   setSyncStatus('syncing');
   tasks=tasks.map(t=>t.id===modalTaskId?{...t,...updates}:t);
   renderToday();closeModal();
-  await db.from('tasks').update(updates).eq('id',modalTaskId);
+  let{error}=await db.from('tasks').update(updates).eq('id',modalTaskId);
+  // Retry without optional columns if they don't exist in the schema
+  if(error){
+    console.warn('Update error:',error.message);
+    const safe={name:updates.name,cat:updates.cat,start_date:updates.start_date,end_date:updates.end_date,prio:updates.prio};
+    const retry=await db.from('tasks').update(safe).eq('id',modalTaskId);
+    error=retry.error;
+    if(error)console.error('Update retry error:',error.message);
+  }
   setSyncStatus('online');
   if(document.getElementById('panel-gantt').classList.contains('active'))
     renderGantt(document.getElementById('gantt-filter').value);
@@ -825,10 +839,24 @@ async function addTask(){
   if(!name){showNotif('Missing field','Please enter a task name.');return;}
   const btn=document.getElementById('add-btn');btn.disabled=true;btn.textContent='Adding...';
   setSyncStatus('syncing');
-  const nt={name,cat:document.getElementById('f-cat').value,start_date:document.getElementById('f-start').value||todayStr,end_date:document.getElementById('f-end').value||todayStr,prio:document.getElementById('f-prio').value,done:false,notes:document.getElementById('f-notes').value,recur:recurStr(RS.add)};
-  const{data,error}=await db.from('tasks').insert(nt).select();
+  // Base payload — always safe columns
+  const nt={name,cat:document.getElementById('f-cat').value,start_date:document.getElementById('f-start').value||todayStr,end_date:document.getElementById('f-end').value||todayStr,prio:document.getElementById('f-prio').value,done:false};
+  // Extend with optional columns if the table supports them
+  const notesVal=document.getElementById('f-notes').value;
+  if(notesVal)nt.notes=notesVal;
+  const recurVal=recurStr(RS.add);
+  if(recurVal&&recurVal!=='none')nt.recur=recurVal;
+  let{data,error}=await db.from('tasks').insert(nt).select();
+  // If it failed due to unknown columns (recur/notes), retry with base only
+  if(error){
+    console.warn('Insert error (full):',error.message);
+    delete nt.notes;delete nt.recur;
+    const retry=await db.from('tasks').insert(nt).select();
+    data=retry.data;error=retry.error;
+    if(error)console.error('Insert error (base):',error.message);
+  }
   if(!error&&data){tasks.push(data[0]);renderToday();document.getElementById('f-name').value='';document.getElementById('f-notes').value='';showNotif('Task added!','"'+name+'" synced.');}
-  else showNotif('Error','Could not save task.');
+  else showNotif('Error','Could not save: '+(error?.message||'unknown error'));
   btn.disabled=false;btn.textContent='Add task';setSyncStatus('online');
 }
 
@@ -843,7 +871,10 @@ async function aiSuggest(){
       const color=CATS[s.cat]||CATS.Others;
       const el=document.createElement('div');el.className='sug-item';
       el.innerHTML=`<span class="dot" style="background:${color}"></span><span style="flex:1">${s.name}</span><span style="font-size:11px;color:var(--text2)">${s.cat}</span>`;
-      el.onclick=async()=>{const{data:d}=await db.from('tasks').insert({name:s.name,cat:s.cat,start_date:todayStr,end_date:todayStr,prio:s.prio,done:false,recur:'none'}).select();if(d){tasks.push(d[0]);renderToday();showNotif('Added!','"'+s.name+'" synced.');el.style.opacity='.35';el.style.pointerEvents='none';}};
+      el.onclick=async()=>{const base2={name:s.name,cat:s.cat,start_date:todayStr,end_date:todayStr,prio:s.prio,done:false};
+        let{data:d,error:e2}=await db.from('tasks').insert({...base2,recur:'none'}).select();
+        if(e2){const r2=await db.from('tasks').insert(base2).select();d=r2.data;}
+        if(d){tasks.push(d[0]);renderToday();showNotif('Added!','"'+s.name+'" synced.');el.style.opacity='.35';el.style.pointerEvents='none';}};
       box.appendChild(el);
     });
   }catch(e){box.innerHTML='<div style="font-size:13px;color:#DC2626">Could not load suggestions.</div>';}
@@ -892,7 +923,7 @@ async function openEodReview(){
 function closeEod(){document.getElementById('eod-ov').classList.remove('open');}
 
 // ── GOOGLE CALENDAR ───────────────────────────────────────────────────────────
-const GCAL_CLIENT_ID='872693971163-hau61eu7lqjahsntk1bebk6pqdhgk5r4.apps.googleusercontent.com'; // Replace with your OAuth Client ID
+const GCAL_CLIENT_ID='YOUR_GOOGLE_CLIENT_ID'; // Replace with your OAuth Client ID
 const GCAL_SCOPE='https://www.googleapis.com/auth/calendar';
 let gcalToken=null;
 try{const s=localStorage.getItem('lg-gcal-token');if(s){const p=JSON.parse(s);if(p.expiry>Date.now())gcalToken=p.token;}}catch(e){}
