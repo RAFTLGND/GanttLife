@@ -726,11 +726,13 @@ function renderGantt(cat){
   const days=[];
   for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1))days.push(d.toISOString().split('T')[0]);
   const catFiltered=cat==='all'?tasks:tasks.filter(t=>t.cat===cat);
-  const filtered=catFiltered.filter(t=>t.done);
+  // Show: done tasks + undone tasks with end_date >= today (future/ongoing)
+  // Hide: undone tasks whose end_date is in the past (expired)
+  const filtered=catFiltered.filter(t=>t.done||(t.end_date>=todayStr));
   const mNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   if(!filtered.length){
-    const catLabel=cat==='all'?'yet':'in '+cat+' yet';
-    document.getElementById('gantt-wrap').innerHTML=`<div class="gantt-empty">No completed tasks ${catLabel}.<br><span style="font-size:12px;opacity:.65">Check off tasks in the Today tab — they'll appear here.</span></div>`;
+    const catLabel=cat==='all'?'':'in '+cat;
+    document.getElementById('gantt-wrap').innerHTML=`<div class="gantt-empty">No tasks to show${catLabel?(' '+catLabel):''} — past undone tasks are hidden.<br><span style="font-size:12px;opacity:.65">Future and completed tasks will appear here.</span></div>`;
     return;
   }
   let mSpans={};
@@ -755,18 +757,27 @@ function renderGantt(cat){
     catTasks.forEach(t=>{const key=t.name.toLowerCase();if(!byName[key]){byName[key]=[];nameOrder.push(key);}byName[key].push(t);});
     nameOrder.forEach(key=>{
       const segments=byName[key];const rep=segments[0];
-      h+=`<tr><td title="${rep.name}">&#10003; <span style="text-decoration:line-through;opacity:.5">${rep.name}</span></td>`;
+      const allDone=segments.every(t=>t.done);
+      // Label: checkmark + strikethrough if done, plain name if future
+      const labelInner=allDone
+        ? `&#10003; <span style="text-decoration:line-through;opacity:.5">${rep.name}</span>`
+        : `<span>${rep.name}</span>`;
+      h+=`<tr><td title="${rep.name}">${labelInner}</td>`;
       days.forEach(ds=>{
         const isToday=ds===todayStr;
         h+=`<td class="gcell${isToday?' gtoday':''}" data-day="${ds}">`;
         for(const t of segments){
           if(ds>=t.start_date&&ds<=t.end_date){
             const isMile=t.start_date===t.end_date;
-            if(isMile){h+=`<div class="gmile" style="color:${color}">&#9670;</div>`;}
-            else{
+            if(isMile){
+              h+=`<div class="gmile" style="color:${color};opacity:${t.done?'1':'.5'}">&#9670;</div>`;
+            } else {
               const isFirst=ds===t.start_date,isLast=ds===t.end_date;
               const br=isFirst&&isLast?'3px':isFirst?'3px 0 0 3px':isLast?'0 3px 3px 0':'0';
-              h+=`<div class="gbar" data-tid="${t.id}" data-start="${t.start_date}" data-end="${t.end_date}" style="background:${color};opacity:.45;border-radius:${br}">`;
+              // Done: solid+faded; Future: slightly transparent with a dashed feel via lower opacity
+              const opacity=t.done?'.45':'.25';
+              const border=t.done?'none':`1px dashed ${color}`;
+              h+=`<div class="gbar" data-tid="${t.id}" data-start="${t.start_date}" data-end="${t.end_date}" style="background:${color};opacity:${opacity};border-radius:${br};outline:${border}">`;
               if(isFirst)h+=`<div class="gbar-edge left" data-edge="left" data-tid="${t.id}"></div>`;
               if(isLast)h+=`<div class="gbar-edge right" data-edge="right" data-tid="${t.id}"></div>`;
               h+=`</div>`;
