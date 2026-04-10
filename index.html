@@ -939,7 +939,7 @@ async function openEodReview(){
 function closeEod(){document.getElementById('eod-ov').classList.remove('open');}
 
 // ── GOOGLE CALENDAR ───────────────────────────────────────────────────────────
-const GCAL_CLIENT_ID='YOUR_GOOGLE_CLIENT_ID'; // Replace with your OAuth Client ID
+const GCAL_CLIENT_ID='872693971163-hau61eu7lqjahsntk1bebk6pqdhgk5r4.apps.googleusercontent.com'; // Replace with your OAuth Client ID
 const GCAL_SCOPE='https://www.googleapis.com/auth/calendar';
 let gcalToken=null;
 try{const s=localStorage.getItem('lg-gcal-token');if(s){const p=JSON.parse(s);if(p.expiry>Date.now())gcalToken=p.token;}}catch(e){}
